@@ -1,0 +1,11 @@
+.chat-messages {
+  flex-grow: 1;
+  height: 40vh;
+  max-height: 500px;
+  background: blue;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+}

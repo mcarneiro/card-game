@@ -1,25 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from 'react'
+import gameSetup from './business/game-setup'
+import socket from './business/socket'
+import Board from './components/Board'
+import Chat from './components/Chat/Chat'
 
-function App() {
+const connection = socket()
+
+const App = () => {
+  let [loadingClass, setLoadingClass] = useState('-loading')
+  let [core, setCore] = useState({})
+  console.log('app')
+
+  // useEffect(() => {
+  //   gameSetup()
+  //     .then(setCore)
+  //     .then(() => setLoadingClass(''))
+  // }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className={loadingClass}>
+      <Board></Board>
+      <Chat socket={connection}></Chat>
     </div>
   );
 }
 
-export default App;
+export default App

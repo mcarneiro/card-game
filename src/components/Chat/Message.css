@@ -1,0 +1,44 @@
+.message {
+  border: 1px solid red;
+  background: #fff;
+  padding: 5px;
+  font-size: 16px;
+  max-width: 50%;
+  margin: 5px 0;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+
+.message.-mine {
+  align-self: flex-end;
+}
+
+.message:first-child {
+  margin-top: 0
+}
+.message:last-child {
+  margin-bottom: 0
+}
+
+.message .meta {
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+.message .user {
+  font-weight: bold;
+}
+.message .user:after {
+  content: ' @ ';
+  color: #888;
+}
+
+.message .date {
+  color: #888;
+  font-style: italic;
+}
+
+.message .text {
+  font-size: 16px;
+}
