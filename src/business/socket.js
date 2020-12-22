@@ -1,7 +1,6 @@
 import io from 'socket.io/client-dist/socket.io'
 
-const socket = () => {
-  console.log('run socket')
+export default () => {
   const socket = io('ws://localhost:3001', {
     transports: ['websocket'],
     upgrade: false
@@ -25,93 +24,89 @@ const socket = () => {
   })()
   let userList = []
 
-  if (roomID) {
-    console.log('user id', userID)
+  if (!roomID) {
+    return { socket }
+  }
 
-    socket.on('connect', () => {
-      console.log('connected', socket.id);
-      socket.emit('join', {roomID, userID})
-    })
+  socket.on('disconnect', () => {
+    totalChunks = 0
+  })
 
-    socket.on('disconnect', () => {
-      console.log('disconnected');
-      totalChunks = 0
-    })
+  socket.on('user-list', list => {
+    userList = list
+  })
 
-    socket.on('user-list', list => {
-      userList = list
-    })
-
-    const sendMessage = msg => {
-      socket.emit('chat-message', {msg, userID})
-    }
-
-    const askHistory = (newUserID) => {
-      console.log('asked history for', newUserID)
-      let userHistoryList = userList.filter(data => data.id !== newUserID).map(data => data.id)
-      let index = userHistoryList.indexOf(userID)
-      let userLen = userHistoryList.length
-      let historyLen = history.get().length
-
-      if (index < 0) {
-        return
-      }
-
-      // define how many history nodes each connected client should send, if there are more users then history, each one sends 1
-      let quant = Math.floor(historyLen / Math.min(historyLen, userLen)) || 0
-
-      if (index < userLen-1) {
-        quant = quant + (historyLen % Math.min(historyLen, userLen) || 0)
-      }
-
-      let historyToSend = history.get().slice(index * quant, index * quant + quant)
-      socket.emit('send-history', newUserID, historyToSend, Math.min(1/userLen, 1))
-    }
-
-    const receiveHistory = callback => (data, chunk) => {
-      history.add(data)
-      totalChunks += chunk
-
-      console.log("chunks", chunk, totalChunks);
-      if (totalChunks === 1) {
-        console.log('all history', history.get())
-        callback(history.get())
-      }
-    }
-
-    const handleHistory = (callback = noop) => {
-      const onReceiveHistory = receiveHistory(callback)
-
-      socket.on('ask-history', askHistory)
-      socket.on('receive-history', onReceiveHistory)
-
-      return () => {
-        socket.off('receive-history', onReceiveHistory)
-        socket.off('ask-history', askHistory)
-      }
-    }
-
-    const handleMessage = (callback = noop) => {
-      const evt = data => {
-        history.add([data])
-        callback(data)
-      }
-
-      socket.on('chat-message', evt)
-
-      return () => socket.off('chat-message', evt)
-    }
-
-    return {
-      socket,
-      handleHistory,
-      handleMessage,
-      sendMessage,
-      userID
+  const connect = (userName, callback) => {
+    if (socket.connected) {
+      socket.emit('join', {roomID, userID, userName}, callback)
+    } else {
+      socket.on('connect', () => {
+        socket.emit('join', {roomID, userID, userName}, callback)
+      })
     }
   }
 
-  return {socket}
-}
+  const sendMessage = msg => {
+    socket.emit('chat-message', {msg, userID})
+  }
 
-export default socket
+  const askHistory = (newUserID) => {
+    let userHistoryList = userList.filter(data => data.id !== newUserID).map(data => data.id)
+    let index = userHistoryList.indexOf(userID)
+    let userLen = userHistoryList.length
+    let historyLen = history.get().length
+
+    if (index < 0) {
+      return
+    }
+
+    // define how many history nodes each connected client should send, if there are more users then history, each one sends 1
+    let quant = Math.floor(historyLen / Math.min(historyLen, userLen)) || 0
+
+    if (index < userLen-1) {
+      quant = quant + (historyLen % Math.min(historyLen, userLen) || 0)
+    }
+
+    let historyToSend = history.get().slice(index * quant, index * quant + quant)
+    socket.emit('send-history', newUserID, historyToSend, Math.min(1/userLen, 1))
+  }
+
+  const receiveHistory = callback => (data, chunk) => {
+    history.add(data)
+    totalChunks += chunk
+
+    if (totalChunks === 1) {
+      callback(history.get())
+    }
+  }
+
+  const handleHistory = (callback = noop) => {
+    const onReceiveHistory = receiveHistory(callback)
+
+    socket.on('ask-history', askHistory)
+    socket.on('receive-history', onReceiveHistory)
+
+    return () => {
+      socket.off('receive-history', onReceiveHistory)
+      socket.off('ask-history', askHistory)
+    }
+  }
+
+  const handleMessage = (callback = noop) => {
+    const evt = data => {
+      history.add([data])
+      callback(data)
+    }
+
+    socket.on('chat-message', evt)
+
+    return () => socket.off('chat-message', evt)
+  }
+
+  return {
+    connect,
+    handleHistory,
+    handleMessage,
+    sendMessage
+  }
+}

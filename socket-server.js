@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
 let roomList = {}
 io.on('connection', socket => {
   let userID
+  let userName
   let roomID
   console.log('a user connected')
 
@@ -33,12 +34,22 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('join', data => {
-    ({userID, roomID} = data)
+  socket.on('join', (data, callback) => {
+    ({userID, userName, roomID} = data)
     roomList[roomID] = roomList[roomID] || {userList: []}
+
+    if (roomList[roomID].userList.findIndex(data => data.name === userName) >= 0) {
+      callback({'type': 'error', 'msg': 'user-exists'})
+      return
+    }
+    callback({'type': 'success'})
     socket.join(roomID)
     socket.join(userID)
-    updateUserList(roomList[roomID].userList.concat({id: userID, name: '', timestamp: Date.now()}))
+    updateUserList(roomList[roomID].userList.concat({
+      id: userID,
+      name: userName,
+      timestamp: Date.now()
+    }))
     io.to(roomID).emit('ask-history', userID)
   })
 
@@ -47,9 +58,16 @@ io.on('connection', socket => {
   })
 
   socket.on('chat-message', ({msg}) => {
-    let now = Date.now()
-    let id = (now * Math.round(Math.random() * 1000)).toString(36)
-    io.to(roomID).emit('chat-message', {msg, id, userID, timestamp: now})
+    let timestamp = Date.now()
+    let id = (timestamp * Math.round(Math.random() * 1000)).toString(36)
+    io.to(roomID)
+      .emit('chat-message', {
+        msg,
+        id,
+        userID,
+        userName,
+        timestamp
+      })
   })
 })
 

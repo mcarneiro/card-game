@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import './MessageBox.css'
 import Message from './Message'
+import UserContext from '../../context/UserContext'
 
-const Messages = ({socket}) => {
+const MessageBox = ({handleHistory, handleMessage}) => {
   const [msg, setMsg] = useState([])
   let $root;
+  let {userData} = useContext(UserContext)
 
   const handleNewMessage = useCallback(value => {
     setMsg(prev => prev.concat(value))
@@ -16,10 +18,9 @@ const Messages = ({socket}) => {
       return (
         <Message
           key={value.id}
-          myUserID={socket.userID}
-          userID={value.userID}
+          isMe={value.userName === userData.name}
+          userName={value.userName}
           time={value.timestamp}
-          id={value.id}
           msg={value.msg}
         />
       )
@@ -27,14 +28,14 @@ const Messages = ({socket}) => {
   }, [msg])
 
   useEffect(() => {
-    const clearHandleHistory = socket.handleHistory(handleNewMessage)
-    const clearHandleMessage = socket.handleMessage(handleNewMessage)
+    const clearHandleHistory = handleHistory(handleNewMessage)
+    const clearHandleMessage = handleMessage(handleNewMessage)
 
     return () => {
       clearHandleHistory()
       clearHandleMessage()
     }
-  }, [socket, handleNewMessage])
+  }, [handleHistory, handleMessage, handleNewMessage])
 
   useEffect(() => {
     if ($root) {
@@ -49,4 +50,4 @@ const Messages = ({socket}) => {
   )
 }
 
-export default Messages
+export default MessageBox

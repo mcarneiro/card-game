@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './Control.css'
 
-const Control = ({socket}) => {
+const Control = ({sendMessage}) => {
   let [msg, setMsg] = useState('')
 
   const handleChange = e => {
@@ -9,15 +9,14 @@ const Control = ({socket}) => {
   }
 
   const handleSubmit = e => {
-    console.log('send message', msg)
-    socket.sendMessage(msg)
+    sendMessage(msg)
     setMsg('')
     e.preventDefault()
   }
 
   return (
     <form className="chat-control" onSubmit={handleSubmit}>
-      <input type="text" value={msg} onChange={handleChange}></input>
+      <input type="text" value={msg} onChange={handleChange} />
       <button>Send</button>
     </form>
   )

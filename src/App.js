@@ -3,13 +3,14 @@ import gameSetup from './business/game-setup'
 import socket from './business/socket'
 import Board from './components/Board'
 import Chat from './components/Chat/Chat'
+import Register from './components/Register'
+import UserContext from './context/UserContext'
 
 const connection = socket()
 
 const App = () => {
-  let [loadingClass, setLoadingClass] = useState('-loading')
-  let [core, setCore] = useState({})
-  console.log('app')
+  let [userData, setUserData] = useState({name: '', isOnline: false})
+  // let [core, setCore] = useState({})
 
   // useEffect(() => {
   //   gameSetup()
@@ -18,10 +19,17 @@ const App = () => {
   // }, [])
 
   return (
-    <div className={loadingClass}>
-      <Board></Board>
-      <Chat socket={connection}></Chat>
-    </div>
+    <UserContext.Provider value={{userData, setUserData}}>
+    { !userData.isOnline ?
+      <Register socket={connection} />
+    : '' }
+    { userData.isOnline ?
+      <>
+        <Board></Board>
+        <Chat socket={connection} />
+      </>
+    : '' }
+    </UserContext.Provider>
   );
 }
 
