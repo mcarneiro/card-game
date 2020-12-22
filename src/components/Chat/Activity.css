@@ -1,0 +1,23 @@
+.activity {
+  font-size: 12px;
+  max-width: 50%;
+  margin: 5px 0;
+  color: #fff;
+  font-style: italic;
+  align-self: flex-start;
+}
+
+.activity > i {
+  opacity: 0.5;
+}
+
+.activity.-mine {
+  align-self: flex-end;
+}
+
+.activity:first-child {
+  margin-top: 0
+}
+.activity:last-child {
+  margin-bottom: 0
+}

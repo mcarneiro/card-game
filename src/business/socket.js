@@ -32,6 +32,11 @@ export default () => {
     totalChunks = 0
   })
 
+  const handleUserListUpdate = callback => {
+    socket.on('user-list', callback)
+    return () => socket.off('user-list', callback)
+  }
+
   socket.on('user-list', list => {
     userList = list
   })
@@ -46,12 +51,12 @@ export default () => {
     }
   }
 
-  const sendMessage = msg => {
-    socket.emit('chat-message', {msg, userID})
+  const sendMessage = message => {
+    socket.emit('chat-message', {message})
   }
 
   const askHistory = (newUserID) => {
-    let userHistoryList = userList.filter(data => data.id !== newUserID).map(data => data.id)
+    let userHistoryList = userList.filter(data => data.userID !== newUserID).map(data => data.userID)
     let index = userHistoryList.indexOf(userID)
     let userLen = userHistoryList.length
     let historyLen = history.get().length
@@ -92,21 +97,22 @@ export default () => {
     }
   }
 
-  const handleMessage = (callback = noop) => {
+  const handleActivity = (callback = noop) => {
     const evt = data => {
       history.add([data])
-      callback(data)
+      callback(history.get())
     }
 
-    socket.on('chat-message', evt)
+    socket.on('activity', evt)
 
-    return () => socket.off('chat-message', evt)
+    return () => socket.off('activity', evt)
   }
 
   return {
     connect,
+    handleUserListUpdate,
     handleHistory,
-    handleMessage,
+    handleActivity,
     sendMessage
   }
 }

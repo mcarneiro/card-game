@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
-import gameSetup from './business/game-setup'
+import { useState, useEffect } from 'react'
 import socket from './business/socket'
-import Board from './components/Board'
+import Board from './components/Game/Board'
 import Chat from './components/Chat/Chat'
 import Register from './components/Register'
 import UserContext from './context/UserContext'
@@ -10,22 +9,20 @@ const connection = socket()
 
 const App = () => {
   let [userData, setUserData] = useState({name: '', isOnline: false})
-  // let [core, setCore] = useState({})
+  let [userList, setUserList] = useState([])
 
-  // useEffect(() => {
-  //   gameSetup()
-  //     .then(setCore)
-  //     .then(() => setLoadingClass(''))
-  // }, [])
+  useEffect(() => {
+    connection.handleUserListUpdate(setUserList)
+  }, [])
 
   return (
-    <UserContext.Provider value={{userData, setUserData}}>
+    <UserContext.Provider value={{userData, setUserData, userList, setUserList}}>
     { !userData.isOnline ?
       <Register socket={connection} />
     : '' }
     { userData.isOnline ?
       <>
-        <Board></Board>
+        <Board socket={connection} userList={userList}></Board>
         <Chat socket={connection} />
       </>
     : '' }

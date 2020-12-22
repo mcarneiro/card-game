@@ -1,41 +1,53 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 import './MessageBox.css'
 import Message from './Message'
+import Activity from './Activity'
 import UserContext from '../../context/UserContext'
 
-const MessageBox = ({handleHistory, handleMessage}) => {
+const MessageBox = ({handleHistory, handleActivity}) => {
   const [msg, setMsg] = useState([])
   let $root;
   let {userData} = useContext(UserContext)
 
   const handleNewMessage = useCallback(value => {
-    setMsg(prev => prev.concat(value))
+    setMsg(value)
   }, [setMsg])
 
   const printMessages = useCallback(() => {
     return msg.map(value => {
-      console.log(value)
-      return (
-        <Message
-          key={value.id}
-          isMe={value.userName === userData.name}
-          userName={value.userName}
-          time={value.timestamp}
-          msg={value.msg}
-        />
-      )
+      switch (value.type) {
+        case 'user':
+          return (
+            <Activity
+              key={value.id}
+              isMe={value.userName === userData.name}
+              userName={value.userName}
+              time={value.timestamp}
+              msg={value.message} />
+          )
+        default:
+          return (
+            <Message
+              key={value.id}
+              isMe={value.userName === userData.name}
+              userName={value.userName}
+              time={value.timestamp}
+              msg={value.message}
+            />
+          )
+      }
     })
-  }, [msg])
+  }, [msg, userData.name])
 
   useEffect(() => {
     const clearHandleHistory = handleHistory(handleNewMessage)
-    const clearHandleMessage = handleMessage(handleNewMessage)
+    const clearHandleActivity = handleActivity(handleNewMessage)
 
     return () => {
       clearHandleHistory()
-      clearHandleMessage()
+      clearHandleActivity()
     }
-  }, [handleHistory, handleMessage, handleNewMessage])
+  }, [handleHistory, handleActivity, handleNewMessage])
 
   useEffect(() => {
     if ($root) {

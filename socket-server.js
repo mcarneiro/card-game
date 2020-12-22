@@ -30,8 +30,18 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     console.log('user disconnected')
     if (roomID) {
-      updateUserList(roomList[roomID].userList.filter(data => data.id !== userID))
+      updateUserList(roomList[roomID].userList.filter(data => data.userID !== userID))
     }
+
+    let timestamp = Date.now()
+    io.to(roomID).emit('activity', {
+      type: 'user',
+      userName,
+      userID,
+      message: 'disconnected',
+      id: (timestamp * Math.round(Math.random() * 1000)).toString(36),
+      timestamp
+    })
   })
 
   socket.on('join', (data, callback) => {
@@ -43,31 +53,43 @@ io.on('connection', socket => {
       return
     }
     callback({'type': 'success'})
+
+    let timestamp = Date.now()
     socket.join(roomID)
     socket.join(userID)
+
     updateUserList(roomList[roomID].userList.concat({
-      id: userID,
-      name: userName,
-      timestamp: Date.now()
+      userID,
+      userName,
+      timestamp
     }))
+
     io.to(roomID).emit('ask-history', userID)
+    io.to(roomID).emit('activity', {
+      type: 'user',
+      userName,
+      userID,
+      message: 'connected',
+      id: (timestamp * Math.round(Math.random() * 1000)).toString(36),
+      timestamp
+    })
   })
 
   socket.on('send-history', (newUserID, history, chunk) => {
     io.to(newUserID).emit('receive-history', history, chunk)
   })
 
-  socket.on('chat-message', ({msg}) => {
+  socket.on('chat-message', ({message}) => {
     let timestamp = Date.now()
-    let id = (timestamp * Math.round(Math.random() * 1000)).toString(36)
-    io.to(roomID)
-      .emit('chat-message', {
-        msg,
-        id,
-        userID,
-        userName,
-        timestamp
-      })
+
+    io.to(roomID).emit('activity', {
+      type: 'message',
+      userName,
+      userID,
+      id: (timestamp * Math.round(Math.random() * 1000)).toString(36),
+      message,
+      timestamp
+    })
   })
 })
 
