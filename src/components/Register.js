@@ -2,21 +2,21 @@ import { useState, useContext, useCallback } from 'react'
 import './Register.css'
 import UserContext from '../context/UserContext'
 
-const Register = ({socket}) => {
+const Register = ({join}) => {
   const {setUserData} = useContext(UserContext)
-  const [name, setName] = useState('')
+  const [userName, setUserName] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
   const handleChange = evt => {
-    setName(evt.target.value)
+    setUserName(evt.target.value)
   }
 
   const handleSubmit = useCallback(e => {
     e.preventDefault()
 
-    socket.connect(name, res => {
+    join(userName, res => {
       if (res.type === 'success') {
-        setUserData(prev => ({...prev, name, isOnline: true}))
+        setUserData(prev => ({...prev, userName}))
       } else {
         setErrorMessage(() => {
           switch(res.msg) {
@@ -28,13 +28,13 @@ const Register = ({socket}) => {
         })
       }
     })
-  }, [socket, name, setUserData, setErrorMessage])
+  }, [join, userName, setUserData, setErrorMessage])
 
   return (
     <div className="register">
       <form onSubmit={handleSubmit}>
         <p>Choose your name:</p>
-        <input type="text" value={name} onChange={handleChange} />
+        <input type="text" value={userName} onChange={handleChange} />
         <button>Send</button>
         {errorMessage !== '' ? <p>{errorMessage}</p> : ''}
       </form>

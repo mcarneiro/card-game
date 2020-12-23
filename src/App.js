@@ -13,19 +13,23 @@ const App = () => {
 
   useEffect(() => {
     connection.handleUserListUpdate(setUserList)
+    connection.handleConnection(type => {
+      setUserData(prev => ({...prev, isOnline: type === 'connected'}))
+    })
   }, [])
 
   return (
     <UserContext.Provider value={{userData, setUserData, userList, setUserList}}>
-    { !userData.isOnline ?
-      <Register socket={connection} />
-    : '' }
-    { userData.isOnline ?
-      <>
-        <Board socket={connection} userList={userList}></Board>
-        <Chat socket={connection} />
-      </>
-    : '' }
+      { !userData.isOnline ? 'Disconnected!' : '' }
+      { !userData.userName ?
+        <Register join={connection.join} />
+      : '' }
+      { !!userData.userName ?
+        <>
+          <Board socket={connection} userList={userList}></Board>
+          <Chat socket={connection} />
+        </>
+      : '' }
     </UserContext.Provider>
   );
 }

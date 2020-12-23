@@ -7,7 +7,7 @@ export default () => {
   })
   const roomID = document.location.pathname.slice(1)
   const userID = (Date.now() * Math.round(Math.random() * 1000)).toString(36)
-  const noop = () => null
+  const noop = () => undefined
   let totalChunks = 0
   const history = (() => {
     let histData = []
@@ -28,6 +28,19 @@ export default () => {
     return { socket }
   }
 
+  const handleConnection = (callback) => {
+    let onConnect = () => callback('connected')
+    let onDisconnect = () => callback('disconnected')
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+    }
+  }
+
   socket.on('disconnect', () => {
     totalChunks = 0
   })
@@ -41,14 +54,13 @@ export default () => {
     userList = list
   })
 
-  const connect = (userName, callback) => {
+  const join = (userName, callback) => {
     if (socket.connected) {
       socket.emit('join', {roomID, userID, userName}, callback)
-    } else {
-      socket.on('connect', () => {
-        socket.emit('join', {roomID, userID, userName}, callback)
-      })
     }
+    socket.on('connect', () => {
+      socket.emit('join', {roomID, userID, userName}, callback)
+    })
   }
 
   const sendMessage = message => {
@@ -97,22 +109,23 @@ export default () => {
     }
   }
 
-  const handleActivity = (callback = noop) => {
+  const handleUserActivity = (callback = noop) => {
     const evt = data => {
       history.add([data])
       callback(history.get())
     }
 
-    socket.on('activity', evt)
+    socket.on('user-activity', evt)
 
-    return () => socket.off('activity', evt)
+    return () => socket.off('user-activity', evt)
   }
 
   return {
-    connect,
+    join,
+    handleConnection,
     handleUserListUpdate,
     handleHistory,
-    handleActivity,
+    handleUserActivity,
     sendMessage
   }
 }

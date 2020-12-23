@@ -7,7 +7,7 @@ const Chat = ({socket}) => {
     <div className="chat">
       <MessageBox
         handleHistory={socket.handleHistory}
-        handleActivity={socket.handleActivity}
+        handleActivity={socket.handleUserActivity}
       />
       <Control sendMessage={socket.sendMessage} />
     </div>

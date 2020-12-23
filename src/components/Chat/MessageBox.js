@@ -20,7 +20,7 @@ const MessageBox = ({handleHistory, handleActivity}) => {
           return (
             <Activity
               key={value.id}
-              isMe={value.userName === userData.name}
+              isMe={value.userName === userData.userName}
               userName={value.userName}
               time={value.timestamp}
               msg={value.message} />
@@ -29,7 +29,7 @@ const MessageBox = ({handleHistory, handleActivity}) => {
           return (
             <Message
               key={value.id}
-              isMe={value.userName === userData.name}
+              isMe={value.userName === userData.userName}
               userName={value.userName}
               time={value.timestamp}
               msg={value.message}
@@ -37,7 +37,7 @@ const MessageBox = ({handleHistory, handleActivity}) => {
           )
       }
     })
-  }, [msg, userData.name])
+  }, [msg, userData.userName])
 
   useEffect(() => {
     const clearHandleHistory = handleHistory(handleNewMessage)
