@@ -1,31 +1,120 @@
 import io from 'socket.io/client-dist/socket.io'
 
-export default () => {
-  const socket = io('ws://localhost:3001', {
+const chunksBy = (userID) => {
+  let totalChunks = 0
+
+  const generate = (userList, activityList) => {
+    // define how many activity nodes each connected client should send,
+    // if there are more users then history, each one sends 1
+    let index = userList.indexOf(userID)
+    let userLen = userList.length
+    let activityLen = activityList.length
+    let start = Math.floor(activityLen / Math.min(activityLen, userLen)) || 0
+    let quant = start
+
+    // last one will get the remainders
+    if (index === userLen-1) {
+      quant = start + (activityLen % Math.min(activityLen, userLen) || 0)
+    }
+
+    return {
+      chunk: activityList.slice(index * start, index * start + quant),
+      chunkSize: Math.min(1/userLen, 1)
+    }
+  }
+
+  const increment = val => totalChunks += val
+  const whenReady = callback => totalChunks === 1 ? callback() : undefined
+  const reset = () => totalChunks = 0
+
+  return {
+    generate,
+    increment,
+    whenReady,
+    reset
+  }
+}
+
+const activityList = (() => {
+  let activityData = []
+
+  const remove = id => activityData.filter(item => item.id !== id)
+  const unique = data => data.filter((item, i, arr) => arr.findIndex(({id}) => id === item.id) === i)
+  const order = (data, label = 'timestamp') => data.sort((a,b) => a[label] < b[label] ? -1 : 1)
+
+  return {
+    get: () => activityData.concat(),
+    add: data => activityData = order(unique(activityData.concat(data))),
+    remove: id => activityData = remove(id)
+  }
+})()
+
+const userListWithout = (userList, userID) => userList.filter(data => data.userID !== userID)
+const generateID = (() => {
+  let i = 0
+  return () => Date.now().toString(36) + (i++)
+})()
+const noop = () => undefined
+
+/* istanbul ignore next */
+const socket = (url) => {
+  const socket = io(url, {
     transports: ['websocket'],
     upgrade: false
   })
   const roomID = document.location.pathname.slice(1)
-  const userID = (Date.now() * Math.round(Math.random() * 1000)).toString(36)
-  const noop = () => undefined
-  let totalChunks = 0
-  const history = (() => {
-    let histData = []
-
-    const remove = id => histData.filter(item => item.id !== id)
-    const onlyNew = data => data.filter(item => histData.findIndex(val => val.id === item.id) < 0)
-    const order = (data, label = 'timestamp') => data.sort((a,b) => a[label] < b[label] ? -1 : 1)
-
-    return {
-      get: () => histData.concat(),
-      add: data => histData = order(histData.concat(onlyNew(data))),
-      remove
-    }
-  })()
+  const userID = generateID()
   let userList = []
+  const chunkControl = chunksBy(userID)
 
   if (!roomID) {
     return { socket }
+  }
+
+  socket.on('disconnect', () => {
+    chunkControl.reset()
+  })
+
+  socket.on('user-list', list => {
+    userList = list
+  })
+
+  socket.on('ask-history', (newUserID) => {
+    let userListWithoutAsker = userListWithout(userList, newUserID).map(({userID}) => userID)
+
+    if (userID === newUserID) {
+      return
+    }
+
+    let {chunk, chunkSize} = chunkControl.generate(userListWithoutAsker, activityList.get())
+    socket.emit('send-history', newUserID, chunk, chunkSize)
+  })
+
+  socket.on('receive-history', (data, chunkSize) => {
+    activityList.add(data)
+    chunkControl.increment(chunkSize)
+  })
+
+  socket.on('user-activity', data => {
+    activityList.add([data])
+  })
+
+  const sendMessage = message => {
+    socket.emit('chat-message', {message})
+  }
+
+  const join = (userName, callback) => {
+    if (socket.connected) {
+      socket.emit('join', {roomID, userID, userName}, callback)
+    }
+    socket.on('connect', () => {
+      socket.emit('join', {roomID, userID, userName}, callback)
+    })
+  }
+
+  const handleUserListUpdate = callback => {
+    socket.on('user-list', callback)
+    return () => socket.off('user-list', callback)
   }
 
   const handleConnection = (callback) => {
@@ -41,80 +130,23 @@ export default () => {
     }
   }
 
-  socket.on('disconnect', () => {
-    totalChunks = 0
-  })
-
-  const handleUserListUpdate = callback => {
-    socket.on('user-list', callback)
-    return () => socket.off('user-list', callback)
-  }
-
-  socket.on('user-list', list => {
-    userList = list
-  })
-
-  const join = (userName, callback) => {
-    if (socket.connected) {
-      socket.emit('join', {roomID, userID, userName}, callback)
-    }
-    socket.on('connect', () => {
-      socket.emit('join', {roomID, userID, userName}, callback)
-    })
-  }
-
-  const sendMessage = message => {
-    socket.emit('chat-message', {message})
-  }
-
-  const askHistory = (newUserID) => {
-    let userHistoryList = userList.filter(data => data.userID !== newUserID).map(data => data.userID)
-    let index = userHistoryList.indexOf(userID)
-    let userLen = userHistoryList.length
-    let historyLen = history.get().length
-
-    if (index < 0) {
-      return
-    }
-
-    // define how many history nodes each connected client should send, if there are more users then history, each one sends 1
-    let quant = Math.floor(historyLen / Math.min(historyLen, userLen)) || 0
-
-    if (index < userLen-1) {
-      quant = quant + (historyLen % Math.min(historyLen, userLen) || 0)
-    }
-
-    let historyToSend = history.get().slice(index * quant, index * quant + quant)
-    socket.emit('send-history', newUserID, historyToSend, Math.min(1/userLen, 1))
-  }
-
-  const receiveHistory = callback => (data, chunk) => {
-    history.add(data)
-    totalChunks += chunk
-
-    if (totalChunks === 1) {
-      callback(history.get())
-    }
-  }
-
   const handleHistory = (callback = noop) => {
-    const onReceiveHistory = receiveHistory(callback)
+    const evt = () => {
+      chunkControl.whenReady(() => callback(activityList.get()))
+    }
 
-    socket.on('ask-history', askHistory)
-    socket.on('receive-history', onReceiveHistory)
+    evt()
+    socket.on('receive-history', evt)
 
     return () => {
-      socket.off('receive-history', onReceiveHistory)
-      socket.off('ask-history', askHistory)
+      socket.off('receive-history', evt)
     }
   }
 
   const handleUserActivity = (callback = noop) => {
-    const evt = data => {
-      history.add([data])
-      callback(history.get())
-    }
+    const evt = () => callback(activityList.get())
 
+    evt()
     socket.on('user-activity', evt)
 
     return () => socket.off('user-activity', evt)
@@ -129,3 +161,6 @@ export default () => {
     sendMessage
   }
 }
+
+export {chunksBy, activityList, generateID, userListWithout}
+export default socket

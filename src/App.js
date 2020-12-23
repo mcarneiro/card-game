@@ -5,7 +5,7 @@ import Chat from './components/Chat/Chat'
 import Register from './components/Register'
 import UserContext from './context/UserContext'
 
-const connection = socket()
+const connection = socket('ws://localhost:3001')
 
 const App = () => {
   let [userData, setUserData] = useState({name: '', isOnline: false})

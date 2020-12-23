@@ -31,7 +31,8 @@ const addUserToList = (userList, user) => {
   }
   return userList
 }
-const activityUserBy = user => (data) => {
+const removeUserFromList = (userList, user) => userList.filter(data => data.userID !== user.userID)
+const userActivityBy = user => (data) => {
   let timestamp = Date.now()
   return {
     ...user,
@@ -42,21 +43,19 @@ const activityUserBy = user => (data) => {
 }
 
 io.on('connection', socket => {
-  let userID
-  let userName
+  let user = {}
   let roomID
   let userActivity = noop
-  console.log('a user connected')
-
-  const updateUserList = (userList = roomList[roomID].userList) =>  {
-    console.log(`user list updated: ${JSON.stringify(userList.map(val => val.userName).join(', '))}`)
+  let updateUserList = userList => {
     roomList[roomID].userList = userList
     io.to(roomID).emit('user-list', userList)
   }
+  console.log('a user connected')
 
   // mandatory first step
   socket.on('join', (data, callback) => {
-    ({userID, userName, roomID} = data)
+    let {userID, userName} = data
+    roomID = data.roomID
 
     roomList[roomID] = createRoomAt(roomID, roomList)
 
@@ -67,21 +66,23 @@ io.on('connection', socket => {
       callback({'type': 'error', 'msg': 'user-exists'})
       return
     }
-    callback({'type': 'success'})
-    console.log(`user "${userName}" joined to "${roomID}"`)
 
+    user = createUser(userID, userName)
     socket.join(roomID)
-    socket.join(userID)
+    socket.join(user.userID)
 
-    let user = createUser(userID, userName)
-    userActivity = activityUserBy(user)
+    userActivity = userActivityBy(user)
+
     updateUserList(addUserToList(room.userList, user))
 
-    io.to(roomID).emit('ask-history', userID)
+    callback({'type': 'success'})
+    console.log(`user "${user.userName}" joined to "${roomID}"`)
+
     io.to(roomID).emit('user-activity', userActivity({
       type: 'user',
       message: 'connected'
     }))
+    io.to(roomID).emit('ask-history', user.userID)
   })
 
   socket.on('send-history', (newUserID, history, chunk) => {
@@ -95,10 +96,10 @@ io.on('connection', socket => {
     }))
   })
 
-  socket.on('ready-for-next-round', ({userID}) => {
+  socket.on('ready-for-next-round', () => {
     const {readyList, userList} = roomList[roomID]
-    if (readyList.indexOf(userID) < 0) {
-      readyList.push(userID)
+    if (readyList.indexOf(user.userID) < 0) {
+      readyList.push(user.userID)
     }
 
     if (readyList.length === userList.length) {
@@ -116,12 +117,12 @@ io.on('connection', socket => {
   })
 
   socket.on('disconnect', () => {
-    console.log('user disconnected')
+    console.log(`user "${user.userName}" disconnected from "${roomID}"`)
     if (roomID) {
-      updateUserList(roomList[roomID].userList.filter(data => data.userID !== userID))
+      updateUserList(removeUserFromList(roomList[roomID].userList, user))
     }
 
-    io.to(roomID).emit('activity', userActivity({
+    io.to(roomID).emit('user-activity', userActivity({
       type: 'user',
       message: 'disconnected'
     }))
