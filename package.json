@@ -15,7 +15,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --coverage",
+    "test-server": "jest server --watch --coverage",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

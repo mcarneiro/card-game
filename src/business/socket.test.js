@@ -2,12 +2,13 @@ import {generateID, activityList, chunksBy, userListWithout} from './socket'
 
 test('generate IDs that are not equal', () => {
   let arr = []
-  for(let i = 0; i < 100; i++) {
+  for(let i = 0; i < 1000; i++) {
     arr[i] = generateID()
   }
   let arr2 = arr.filter((val, i, arr) => arr.indexOf(val) === i)
 
   expect(arr2.length).toBe(arr.length)
+  expect(generateID(1)).not.toBe(generateID(1))
 });
 
 test('add new activity to activityList', () => {
@@ -15,6 +16,7 @@ test('add new activity to activityList', () => {
     {id: '1', timestamp: 100}
   ])
   activityList.add([
+    {id: '3', timestamp: 500},
     {id: '2', timestamp: 50},
     {id: '2', timestamp: 100},
     {id: '1', timestamp: 100},
@@ -22,14 +24,14 @@ test('add new activity to activityList', () => {
     {id: '1', timestamp: 100}
   ])
 
-  expect(activityList.get().length).toBe(2)
+  expect(activityList.get().length).toBe(3)
   expect(activityList.get()[0].timestamp).toBe(50)
 })
 
 test('remove activity from activityList', () => {
   activityList.remove('2')
 
-  expect(activityList.get().length).toBe(1)
+  expect(activityList.get().length).toBe(2)
   expect(activityList.get()[0].id).toBe('1')
 })
 

@@ -9,12 +9,12 @@ const chunksBy = (userID) => {
     let index = userList.indexOf(userID)
     let userLen = userList.length
     let activityLen = activityList.length
-    let start = Math.floor(activityLen / Math.min(activityLen, userLen)) || 0
+    let start = Math.floor(activityLen / Math.min(activityLen, userLen))
     let quant = start
 
     // last one will get the remainders
     if (index === userLen-1) {
-      quant = start + (activityLen % Math.min(activityLen, userLen) || 0)
+      quant = start + (activityLen % Math.min(activityLen, userLen))
     }
 
     return {
@@ -40,7 +40,7 @@ const activityList = (() => {
 
   const remove = id => activityData.filter(item => item.id !== id)
   const unique = data => data.filter((item, i, arr) => arr.findIndex(({id}) => id === item.id) === i)
-  const order = (data, label = 'timestamp') => data.sort((a,b) => a[label] < b[label] ? -1 : 1)
+  const order = (data) => data.sort((a,b) => a.timestamp < b.timestamp ? -1 : 1)
 
   return {
     get: () => activityData.concat(),
@@ -52,7 +52,7 @@ const activityList = (() => {
 const userListWithout = (userList, userID) => userList.filter(data => data.userID !== userID)
 const generateID = (() => {
   let i = 0
-  return () => Date.now().toString(36) + (i++)
+  return (timestamp) => ((timestamp || Date.now()) * Math.round(Math.random() * 10000) + i++).toString(36)
 })()
 const noop = () => undefined
 
