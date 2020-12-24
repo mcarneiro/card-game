@@ -10,9 +10,12 @@ const io = require('socket.io')(server, {
 })
 
 let roomList = {}
-
+const compose = (...fns) => fns.reduceRight((prevFn, nextFn) => (...args) => nextFn(prevFn(...args)));
 const noop = () => undefined
-const generateID = (timestamp) => (timestamp * Math.round(Math.random() * 1000)).toString(36)
+const generateID = (() => {
+  let i = 0
+  return (timestamp = Date.now()) => timestamp.toString(36) + i
+})()
 const createRoomAt = (roomID, destination = {}) => {
   if (!destination[roomID]) {
     console.log(`room "${roomID}" created`)
@@ -20,13 +23,13 @@ const createRoomAt = (roomID, destination = {}) => {
   }
   return {...destination[roomID]}
 }
-const checkUserExists = (userList, userName) => userList.findIndex(data => data.userName === userName) >= 0
+const checkIfUserExists = (userList, userName) => userList.findIndex(data => data.userName === userName) >= 0
 const createUser = (userID, userName) => ({
   userID,
   userName
 })
 const addUserToList = (userList, user) => {
-  if (!checkUserExists(userList, user.userName)) {
+  if (!checkIfUserExists(userList, user.userName)) {
     return userList.concat(user)
   }
   return userList
@@ -41,49 +44,63 @@ const userActivityBy = user => (data) => {
     timestamp
   }
 }
+const joinBy = (roomList) => (data, callback) => {
+  let {userID, userName} = data
+  let roomID = data.roomID
+  let user
+
+  const room = createRoomAt(roomID, roomList)
+
+  if (checkIfUserExists(room.userList, userName)) {
+    console.log(`user "${userName}" already exists, sending error signal`)
+    callback({'type': 'error', 'msg': 'user-exists'})
+    return
+  }
+
+  user = createUser(userID, userName)
+
+  callback({'type': 'success'})
+  console.log(`user "${user.userName}" joined to "${roomID}"`)
+
+  return {
+    user,
+    roomID,
+    room
+  }
+}
 
 io.on('connection', socket => {
   let user = {}
   let roomID
   let userActivity = noop
-  let updateUserList = userList => {
+
+  const updateUserList = userList => {
     roomList[roomID].userList = userList
     io.to(roomID).emit('user-list', userList)
   }
-  console.log('a user connected')
 
-  // mandatory first step
-  socket.on('join', (data, callback) => {
-    let {userID, userName} = data
+  const onJoin = (data) => {
     roomID = data.roomID
+    roomList[roomID] = data.room
+    user = data.user
 
-    roomList[roomID] = createRoomAt(roomID, roomList)
-
-    const {[roomID]: room} = roomList
-
-    if (checkUserExists(room.userList, userName)) {
-      console.log(`user "${userName}" already exists, sending error signal`)
-      callback({'type': 'error', 'msg': 'user-exists'})
-      return
-    }
-
-    user = createUser(userID, userName)
     socket.join(roomID)
     socket.join(user.userID)
 
     userActivity = userActivityBy(user)
-
-    updateUserList(addUserToList(room.userList, user))
-
-    callback({'type': 'success'})
-    console.log(`user "${user.userName}" joined to "${roomID}"`)
+    updateUserList(addUserToList(data.room.userList, user))
 
     io.to(roomID).emit('user-activity', userActivity({
       type: 'user',
       message: 'connected'
     }))
     io.to(roomID).emit('ask-history', user.userID)
-  })
+  }
+
+  console.log('a user connected')
+
+  // mandatory first step
+  socket.on('join', compose(onJoin, joinBy(roomList)))
 
   socket.on('send-history', (newUserID, history, chunk) => {
     io.to(newUserID).emit('receive-history', history, chunk)
