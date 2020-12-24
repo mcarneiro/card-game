@@ -1,20 +1,15 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 import './MessageBox.css'
 import Message from './Message'
 import Activity from './Activity'
 import UserContext from '../../context/UserContext'
 
-const MessageBox = ({handleHistory, handleActivity}) => {
-  const [msg, setMsg] = useState([])
+const MessageBox = ({msgList}) => {
   let $root;
   let {userData} = useContext(UserContext)
 
-  const handleNewMessage = useCallback(value => {
-    setMsg(value)
-  }, [setMsg])
-
   const printMessages = useCallback(() => {
-    return msg.map(value => {
+    return msgList.map(value => {
       switch (value.type) {
         case 'user':
           return (
@@ -25,7 +20,7 @@ const MessageBox = ({handleHistory, handleActivity}) => {
               time={value.timestamp}
               msg={value.message} />
           )
-        default:
+        case 'message':
           return (
             <Message
               key={value.id}
@@ -37,23 +32,13 @@ const MessageBox = ({handleHistory, handleActivity}) => {
           )
       }
     })
-  }, [msg, userData.userName])
-
-  useEffect(() => {
-    const clearHandleHistory = handleHistory(handleNewMessage)
-    const clearHandleActivity = handleActivity(handleNewMessage)
-
-    return () => {
-      clearHandleHistory()
-      clearHandleActivity()
-    }
-  }, [handleHistory, handleActivity, handleNewMessage])
+  }, [msgList, userData.userName])
 
   useEffect(() => {
     if ($root) {
       $root.scrollTo(0,$root.scrollHeight)
     }
-  }, [msg, $root])
+  }, [msgList, $root])
 
   return (
     <div ref={elm => ($root = elm)} className="chat-messages">

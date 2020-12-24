@@ -1,48 +1,39 @@
-{
-  "caracters": [
+module.exports = {
+  "characters": [
     {
-      "label": "Raimundo",
-      "destroyables": [ "plus", "star", "circle", "drop"],
+      "skill": [ "plus", "star", "circle", "drop"],
       "canDestroy": 2,
       "toToken": 1
     },{
-      "label": "Sandra",
-      "destroyables": [ "plus", "star"],
+      "skill": [ "plus", "star"],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Edgar",
-      "destroyables": [ "plus" ],
+      "skill": [ "plus" ],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Carla",
-      "destroyables": [ "plus", "circle" ],
+      "skill": [ "plus", "circle" ],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Lucas",
-      "destroyables": [ "plus", "star", "drop" ],
+      "skill": [ "plus", "star", "drop" ],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Cibele",
-      "destroyables": [ "plus", "star", "circle" ],
+      "skill": [ "plus", "star", "circle" ],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Douglas",
-      "destroyables": [ "plus", "star" ],
+      "skill": [ "plus", "star" ],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Vanessa",
-      "destroyables": [ "plus" ],
+      "skill": [ "plus" ],
       "canDestroy": 1,
       "toToken": 0.5
     },{
-      "label": "Clóvis",
-      "destroyables": [ "drop", "star" ],
+      "skill": [ "drop", "star" ],
       "canDestroy": 1,
       "toToken": 0.5
     }
@@ -53,22 +44,22 @@
       "description": "Projeto para divulgação de um novo produto.",
       "icon": "",
       "rounds": 5,
-      "destroyables": [ "plus" ]
+      "resistance": [ "plus" ]
     }, {
       "label": "RedBird",
       "description": "Automatização de comunicação de eventos.",
       "icon": "",
       "rounds": 4,
-      "destroyables": [ "star" ]
+      "resistance": [ "star" ]
     }, {
       "label": "Guinness",
       "description": "Projeto com foco em geração de leads.",
       "icon": "",
       "rounds": 8,
-      "destroyables": [ "plus", "star" ]
+      "resistance": [ "plus", "star" ]
     }
   ],
-  "destroyables": [
+  "skill": [
     {
       "label": "plus",
       "icon": "plus"
@@ -89,7 +80,6 @@
       "description": "Cliente não responde e o time não consegue continuar.",
       "icon": "worst",
       "effect": {
-        "all_types": ["block", "enemy", "destroyable", "special"],
         "type": "block",
         "cancelable": true,
         "data": {
@@ -126,7 +116,7 @@
         "type": "enemy",
         "cancelable": false,
         "data": {
-          "destroyables": [
+          "resistance": [
             {
               "label": "circle",
               "amount": 2
@@ -146,7 +136,7 @@
         "type": "enemy",
         "cancelable": false,
         "data": {
-          "destroyables": [
+          "resistance": [
             {
               "label": "star",
               "amount": 2
@@ -163,7 +153,6 @@
       "description": "Ninguém percebeu que tinha um feriado no meio.",
       "icon": "worst",
       "effect": {
-        "all_types": ["block", "enemy", "destroyable", "rounds", "special"],
         "type": "rounds",
         "cancelable": true,
         "data": {
@@ -175,10 +164,10 @@
       "description": "O trabalho precisará ser refeito por problema de entendimento.",
       "icon": "very-bad",
       "effect": {
-        "type": "destroyable",
+        "type": "resistance",
         "cancelable": true,
         "data": {
-          "destroyables": [
+          "resistance": [
             {
               "label": "plus",
               "amount": 2
@@ -191,10 +180,10 @@
       "description": "Aquela mecânica complicada caiu.",
       "icon": "good",
       "effect": {
-        "type": "destroyable",
+        "type": "resistance",
         "cancelable": false,
         "data": {
-          "destroyables": [
+          "resistance": [
             {
               "label": "circle",
               "amount": -1
@@ -213,10 +202,10 @@
       "description": "Cliente foi convencido de derrubar módulo irrelevante.",
       "icon": "good",
       "effect": {
-        "type": "destroyable",
+        "type": "resistance",
         "cancelable": false,
         "data": {
-          "destroyables": [
+          "resistance": [
             {
               "label": "plus",
               "amount": -1
@@ -229,10 +218,10 @@
       "description": "Aquela mecânica complicada caiu.",
       "icon": "good",
       "effect": {
-        "type": "destroyable",
+        "type": "resistance",
         "cancelable": false,
         "data": {
-          "destroyableMultiplier": 2
+          "multiplier": 2
         }
       }
     }

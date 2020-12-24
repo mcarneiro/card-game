@@ -152,13 +152,25 @@ const socket = (url) => {
     return () => socket.off('user-activity', evt)
   }
 
+  const sendReadyForNextRound = () => {
+    socket.emit('ready-for-next-round')
+  }
+
+  const handleNewRound = (callback) => {
+    socket.on('new-round', callback)
+
+    return () => socket.off('new-round', callback)
+  }
+
   return {
     join,
     handleConnection,
     handleUserListUpdate,
     handleHistory,
     handleUserActivity,
-    sendMessage
+    sendMessage,
+    sendReadyForNextRound,
+    handleNewRound
   }
 }
 
