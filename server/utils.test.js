@@ -1,6 +1,18 @@
 const {
-  generateID
+  generateID,
+  compose,
+  noop,
 } = require('./utils')
+
+test('compose', () => {
+  const fn1 = () => 1;
+  const fn2 = val => val + 1
+  expect(compose(fn2, fn1)()).toBe(2)
+})
+
+test('noop', () => {
+  expect(noop()).toBe(undefined)
+})
 
 test('generate IDs that are not equal', () => {
   let arr = []

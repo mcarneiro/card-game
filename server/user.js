@@ -1,5 +1,5 @@
 const {generateID} = require('./utils')
-let userList = {}
+const {gameSetup, newRound} = require('./game')
 
 const checkIfUserExists = (userList, userName) => userList.findIndex(data => data.userName === userName) >= 0
 const createUser = (userID, userName) => ({
@@ -23,22 +23,9 @@ const userActivityBy = user => (data) => {
   }
 }
 
-const getUserBy = userID => (...args) => {
-  if (!userID) {
-    return null
-  }
-  if (args.length === 1) {
-    userList[userID] = args[0]
-  }
-  if (args.length === 2) {
-    userList[userID][args[1]] = args[0]
-  }
-  return userList[userID] && JSON.parse(JSON.stringify(userList[userID]))
-}
-
-const readyBy = (getRoom, user) => () => {
+const readyBy = (room, user) => () => {
   let ready = false
-  const {readyList, userList} = getRoom()
+  const {readyList, userList} = room()
   let newReadyList = readyList.concat()
 
   if (readyList.indexOf(user.userName) < 0) {
@@ -49,16 +36,26 @@ const readyBy = (getRoom, user) => () => {
     ready = true
   }
 
+  room(newReadyList, 'readyList')
+
+  if (ready) {
+    room([], 'readyList')
+
+    let {userList, cardData} = room()
+    if (!cardData) {
+      room(gameSetup(userList), 'cardData')
+    } else {
+      room(newRound(userList, cardData), 'cardData')
+    }
+  }
+
   return {
     ready,
     readyList: newReadyList
   }
 }
 
-const getUserList = () => JSON.parse(JSON.stringify(userList))
-
 module.exports = {
-  getUserBy,
   checkIfUserExists,
   createUser,
   addUserToList,

@@ -1,5 +1,5 @@
 module.exports = {
-  "characters": [
+  "characterList": [
     {
       "skill": [ "plus", "star", "circle", "drop"],
       "canDestroy": 2,
@@ -38,7 +38,7 @@ module.exports = {
       "toToken": 0.5
     }
   ],
-  "enemy": [
+  "enemyList": [
     {
       "label": "Pepé",
       "description": "Projeto para divulgação de um novo produto.",
@@ -59,7 +59,7 @@ module.exports = {
       "resistance": [ "plus", "star" ]
     }
   ],
-  "skill": [
+  "skillList": [
     {
       "label": "plus",
       "icon": "plus"
@@ -74,7 +74,7 @@ module.exports = {
       "icon": "drop"
     }
   ],
-  "events": [
+  "eventList": [
     {
       "label": "Feriado prolongado!",
       "description": "Cliente não responde e o time não consegue continuar.",
@@ -226,8 +226,8 @@ module.exports = {
       }
     }
   ],
-  "multipliers": [ 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7 ],
-  "icons": [
+  "multiplierList": [ 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7 ],
+  "iconList": [
     {
       "label": "very-good",
       "url": ""

@@ -1,7 +1,6 @@
 const {compose, noop} = require('./utils')
 const {createUser, addUserToList, removeUserFromList, userActivityBy, readyBy} = require('./user')
-const {roomBy, joinBy} = require('./room')
-const {gameSetup, newRound} = require('./game')
+const {joinBy} = require('./room')
 const server = require('http').createServer()
 const process = require('process')
 const io = require('socket.io')(server, {
@@ -21,6 +20,7 @@ io.on('connection', socket => {
 
   const updateUserList = userList => {
     let {roomID} = room(userList, 'userList')
+    console.log(`emit user-list [${JSON.stringify(userList)}] to room "${roomID}"`)
     io.to(roomID).emit('user-list', userList)
   }
 
@@ -31,23 +31,13 @@ io.on('connection', socket => {
         return
       }
 
-      room = roomBy(data.roomID)
-
-      if (!room()) {
-        room({
-          roomID: data.roomID,
-          userList: [],
-          readyList: [],
-          cardData: {}
-        })
-      }
-
       user = data.user
+      userActivity = data.userActivity
+      room = data.room
 
-      socket.join(data.roomID)
-      socket.join(user.userID)
+      socket.join(room().roomID)
+      socket.join(data.user.userID)
 
-      userActivity = userActivityBy(user)
       updateUserList(addUserToList(room().userList, user))
     }
 
@@ -58,8 +48,17 @@ io.on('connection', socket => {
 
   join()
   .then(() => {
-    console.log(`user "${user.userName}" joined to "${room().roomID}"`)
+    let {roomID} = room()
+
+    console.log(`user "${user.userName}" joined "${roomID}"`)
+
+    io.to(roomID).emit('user-activity', userActivity({
+      type: 'user',
+      message: 'connected'
+    }))
+    io.to(roomID).emit('ask-history', user.userID)
   })
+
   .then(() => {
     let {roomID} = room()
     socket.on('send-history', (newUserID, history, chunk) => {
@@ -85,29 +84,11 @@ io.on('connection', socket => {
       }))
     })
   })
-  .then(() => {
-    let {roomID} = room()
-    io.to(roomID).emit('user-activity', userActivity({
-      type: 'user',
-      message: 'connected'
-    }))
-    io.to(roomID).emit('ask-history', user.userID)
-  })
-  .then(() => {
-    let {roomID} = room()
-    const onReady = ({ready, readyList}) => {
-      room(readyList, 'readyList')
 
+  .then(() => {
+    let {roomID} = room()
+    const onReady = ({ready}) => {
       if (ready) {
-        room([], 'readyList')
-
-        let {userList, cardData} = room()
-        if (!cardData) {
-          room(gameSetup(userList), 'cardData')
-        } else {
-          room(newRound(userList, cardData), 'cardData')
-        }
-
         io.to(roomID).emit('new-round', systemActivity({
           message: 'new round',
           data: room().cardData
@@ -116,7 +97,8 @@ io.on('connection', socket => {
     }
     socket.on('ready-for-next-round', compose(onReady, readyBy(room, user)))
   })
-  .catch(console.log)
+
+  .catch(console.error)
 })
 
 server.listen(3001, () => {

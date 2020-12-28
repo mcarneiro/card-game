@@ -30,6 +30,8 @@ const MessageBox = ({msgList}) => {
               msg={value.message}
             />
           )
+        default:
+          return null
       }
     })
   }, [msgList, userData.userName])

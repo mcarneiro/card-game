@@ -14,7 +14,7 @@ const Chat = ({socket}) => {
       clearHandleHistory()
       clearHandleUserActivity()
     }
-  }, [socket.handleHistory, socket.handleUserActivity, setMsgList])
+  }, [socket, setMsgList])
 
   return (
     <div className="chat">

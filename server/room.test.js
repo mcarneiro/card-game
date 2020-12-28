@@ -1,8 +1,16 @@
 const {roomBy, joinBy} = require('./room')
 
+test('room needs an id', () => {
+  const fn = id => () => roomBy(id)
+  expect(fn()).toThrow()
+  expect(fn(0)).toThrow()
+  expect(fn("")).toThrow()
+})
+
 test('join to a room', () => {
   const room = roomBy('r')
   room({
+    roomID: 'r',
     userList: [
       {userID: '1', userName: 'test'}
     ],
@@ -25,7 +33,7 @@ test('join to a room', () => {
 
   expect(joinData.user.userID).toBe('2')
   expect(joinData.user.userName).toBe('test2')
-  expect(joinData.roomID).toBe('r')
+  expect(joinData.room().roomID).toBe('r')
 
   joinData = joinBy({
     userID: '1',
@@ -35,6 +43,6 @@ test('join to a room', () => {
 
   expect(joinData.user.userID).toBe('1')
   expect(joinData.user.userName).toBe('test')
-  expect(joinData.roomID).toBe('r2')
+  expect(joinData.room().roomID).toBe('r2')
 
 })

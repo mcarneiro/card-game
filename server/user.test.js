@@ -58,4 +58,10 @@ test('user is ready for next round', () => {
   ret = readyBy(room, userData2)()
   expect(ret.ready).toBe(true)
   expect(ret.readyList).toStrictEqual(['test', 'test2'])
+
+  room([], 'cardData')
+
+  readyBy(room, userData1)()
+  ret = readyBy(room, userData2)()
+  expect(ret.ready).toBe(true)
 })
