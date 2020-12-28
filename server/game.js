@@ -1,27 +1,60 @@
 const data = require('./data/core')
+const { generateID } = require('./utils')
 const shuffle = arr => arr.sort((a,b) => Math.random() >= 0.5 ? 1 : -1)
 
 const getCharactersBy = list => (len) => {
   let characterList = list.concat()
   let leader = [characterList.shift()]
-  return shuffle(leader.concat(shuffle(characterList).slice(0, len)))
+  return shuffle(leader.concat(shuffle(characterList).slice(0, len - 1)))
+}
+
+const applyMultiplierBy = multiplierList => {
+  let shuffledMultiplierList = shuffle(multiplierList)
+
+  return (data) => {
+    if (shuffledMultiplierList.length === 0) {
+      shuffledMultiplierList = shuffle(multiplierList)
+    }
+    if (data.amount === -1) {
+      return {
+        ...data,
+        amount: shuffledMultiplierList.shift()
+      }
+    }
+    return data
+  }
 }
 
 const gameSetup = (userList) => {
   const {characterList, enemyList, eventList, skillList, multiplierList} = data
   const len = userList.length
   let getCharacters = getCharactersBy(characterList)
+  let applyMultiplier = applyMultiplierBy(multiplierList)
+  let newEnemyList = shuffle(enemyList).slice(0, Math.ceil(len * 0.5))
+  let newCharacterList = getCharacters(len).map((val, i) => {
+    val.name = userList[i].userName
+    val.characterID = generateID()
+    return val
+  })
 
-  // get Characters
-  // shuffle and get enemies + time
-  // shuffle and get resistances
+  newEnemyList = newEnemyList.map((enemy, i) => {
+    return {
+      ...enemy,
+      resistance: applyMultiplier(enemy.resistance)
+    }
+  })
+
+  console.log(newCharacterList)
+
   return {
-    characters: getCharacters(len),
-    enemyList: shuffle(enemyList).slice(0, Math.ceil(len * 0.5))
+    round: 1,
+    characterList: newCharacterList,
+    enemyList: newEnemyList,
+    eventList: shuffle(eventList)
   }
 }
 
-const newRound = () => {
+const newRound = (userList, gameData) => {
 
   // get assigns
   // remove resistances
@@ -30,7 +63,10 @@ const newRound = () => {
 
   // check resistances x time (destroy enemy, get time bonus)
   // check time
-  return {}
+  return {
+    ...gameData,
+    round: gameData.round + 1
+  }
 }
 
 module.exports = {

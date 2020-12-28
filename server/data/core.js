@@ -44,19 +44,37 @@ module.exports = {
       "description": "Projeto para divulgação de um novo produto.",
       "icon": "",
       "rounds": 5,
-      "resistance": [ "plus" ]
+      "resistance": [
+        {
+          "label": "plus",
+          "amount": -1
+        }
+      ]
     }, {
       "label": "RedBird",
       "description": "Automatização de comunicação de eventos.",
       "icon": "",
       "rounds": 4,
-      "resistance": [ "star" ]
+      "resistance": [
+        {
+          "label": "star",
+          "amount": -1
+        }
+      ]
     }, {
       "label": "Guinness",
       "description": "Projeto com foco em geração de leads.",
       "icon": "",
       "rounds": 8,
-      "resistance": [ "plus", "star" ]
+      "resistance": [
+        {
+          "label": "plus",
+          "amount": -1
+        }, {
+          "label":  "star",
+          "amount": -1
+        }
+      ]
     }
   ],
   "skillList": [

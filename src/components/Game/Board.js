@@ -1,33 +1,40 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import './Board.css'
+import GameContext from '../../context/GameContext'
+import CardBox from './CardBox'
 
-const Board = ({socket, userList}) => {
-  let [round, setRound] = useState({})
+const Board = ({socket}) => {
   let [roundStarted, setRoundStarted] = useState(true)
-  const handleClick = (e) => {
+  let {gameData, setGameData, userList} = useContext(GameContext)
+
+  const handleClick = () => {
     setRoundStarted(false)
     socket.sendReadyForNextRound()
   }
 
   useEffect(() => {
-    const clearHandleNewRound = socket.handleNewRound(data => {
+    const clearHandleNewRound = socket.handleNewRound(res => {
       setRoundStarted(true)
-      setRound(data)
+      console.log('setGameData', res)
+      setGameData(res.data)
     })
 
     return clearHandleNewRound
-  })
+  }, [socket, setRoundStarted, setGameData])
 
   return (
     <div>
+      <CardBox />
       <p>
         Online users: {userList.map(val => val.userName).join(',')}
       </p>
       <p>
-        Round: {JSON.stringify(round)}
+        Round: {JSON.stringify(gameData)}
       </p>
       { roundStarted &&
-      <button onClick={handleClick}>Ready for the next round</button>
+      <button onClick={handleClick}>
+        {gameData.round > 0 ? 'Ready for the next round' : 'Start game'}
+      </button>
       }
     </div>
   )

@@ -41,11 +41,11 @@ const readyBy = (room, user) => () => {
   if (ready) {
     room([], 'readyList')
 
-    let {userList, cardData} = room()
-    if (!cardData) {
-      room(gameSetup(userList), 'cardData')
+    let {userList, gameData} = room()
+    if (gameData.round === 0) {
+      room(gameSetup(userList), 'gameData')
     } else {
-      room(newRound(userList, cardData), 'cardData')
+      room(newRound(userList, gameData), 'gameData')
     }
   }
 

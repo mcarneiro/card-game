@@ -20,7 +20,6 @@ io.on('connection', socket => {
 
   const updateUserList = userList => {
     let {roomID} = room(userList, 'userList')
-    console.log(`emit user-list [${JSON.stringify(userList)}] to room "${roomID}"`)
     io.to(roomID).emit('user-list', userList)
   }
 
@@ -57,6 +56,11 @@ io.on('connection', socket => {
       message: 'connected'
     }))
     io.to(roomID).emit('ask-history', user.userID)
+
+    io.to(roomID).emit('current-state', systemActivity({
+      message: 'sync with current state',
+      data: room()
+    }))
   })
 
   .then(() => {
@@ -91,7 +95,7 @@ io.on('connection', socket => {
       if (ready) {
         io.to(roomID).emit('new-round', systemActivity({
           message: 'new round',
-          data: room().cardData
+          data: room().gameData
         }))
       }
     }

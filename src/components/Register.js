@@ -1,9 +1,9 @@
 import { useState, useContext, useCallback } from 'react'
 import './Register.css'
-import UserContext from '../context/UserContext'
+import gameContext from '../context/GameContext'
 
 const Register = ({join}) => {
-  const {setUserData} = useContext(UserContext)
+  const {setUserData} = useContext(gameContext)
   const [userName, setUserName] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 

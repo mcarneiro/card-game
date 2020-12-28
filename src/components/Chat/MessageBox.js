@@ -2,11 +2,11 @@ import { useCallback, useContext, useEffect } from 'react'
 import './MessageBox.css'
 import Message from './Message'
 import Activity from './Activity'
-import UserContext from '../../context/UserContext'
+import GameContext from '../../context/GameContext'
 
 const MessageBox = ({msgList}) => {
   let $root;
-  let {userData} = useContext(UserContext)
+  let {userData} = useContext(GameContext)
 
   const printMessages = useCallback(() => {
     return msgList.map(value => {
