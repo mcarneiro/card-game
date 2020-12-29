@@ -1,4 +1,10 @@
-import {generateID, activityList, chunksBy, userListWithout} from './socket'
+import {
+  generateID,
+  activityList,
+  chunksBy,
+  userListWithout,
+  syncGameData
+} from './socket'
 
 test('generate IDs that are not equal', () => {
   let arr = []
@@ -13,19 +19,27 @@ test('generate IDs that are not equal', () => {
 
 test('add new activity to activityList', () => {
   activityList.add([
-    {id: '1', timestamp: 100}
+    {id: '1', type: 'user', timestamp: 100}
   ])
   activityList.add([
-    {id: '3', timestamp: 500},
-    {id: '2', timestamp: 50},
-    {id: '2', timestamp: 100},
-    {id: '1', timestamp: 100},
-    {id: '1', timestamp: 100},
-    {id: '1', timestamp: 100}
+    {id: '3', type: 'game', data: {}, timestamp: 500},
+    {id: '2', type: 'user', timestamp: 50},
+    {id: '2', type: 'user', timestamp: 100},
+    {id: '1', type: 'user', timestamp: 100},
+    {id: '1', type: 'user', timestamp: 100},
+    {id: '1', type: 'user', timestamp: 100}
   ])
 
   expect(activityList.get().length).toBe(3)
   expect(activityList.get()[0].timestamp).toBe(50)
+  expect(activityList.get('game').length).toBe(1)
+})
+
+test('get game data from activity for syncing', () => {
+  const gameData = activityList.get('game')
+  const userList = [{userID: 1}, {userID: 2}]
+  expect(syncGameData(gameData, 1, userList)).not.toBeNull()
+  expect(syncGameData(gameData, 2, userList)).toBeNull()
 })
 
 test('remove activity from activityList', () => {

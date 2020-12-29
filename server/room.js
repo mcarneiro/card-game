@@ -39,9 +39,7 @@ const joinBy = (data, callback) => {
       roomID,
       userList: [],
       readyList: [],
-      gameData: {
-        round: 0
-      }
+      gameData: {}
     })
   }
 

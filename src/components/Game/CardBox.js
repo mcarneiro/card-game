@@ -3,16 +3,19 @@ import './CardBox.css'
 import gameContext from '../../context/GameContext'
 
 const CardBox = () => {
-  let {userList, gameData} = useContext(gameContext)
+  let {userData, gameData} = useContext(gameContext)
 
   const printCards = () => {
     if (!gameData.characterList) {
       return null
     }
 
-    return gameData.characterList.map((val, i) => (
+    let characterList = gameData.characterList.sort((a,b) => (a.name === userData.userName) ? -1 : 1)
+
+    return characterList.map((val, i) => (
       <div key={val.characterID} className="card-box">
-        <pre>{JSON.stringify(gameData.characterList[i])}</pre>
+        <p>{val.name}</p>
+        <p>{val.skill.join(', ')}</p>
       </div>
     ))
   }

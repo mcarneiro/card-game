@@ -43,7 +43,12 @@ const activityList = (() => {
   const order = (data) => data.sort((a,b) => a.timestamp < b.timestamp ? -1 : 1)
 
   return {
-    get: () => activityData.concat(),
+    get: type => {
+      if (!type) {
+        return activityData.concat()
+      }
+      return activityData.filter(val => val.type === type)
+    },
     add: data => activityData = order(unique(activityData.concat(data))),
     remove: id => activityData = remove(id)
   }
@@ -55,6 +60,16 @@ const generateID = (() => {
   return (timestamp) => ((timestamp || Date.now()) * Math.round(Math.random() * 10000) + i++).toString(36)
 })()
 const noop = () => undefined
+
+const syncGameData = (gameList, userID, userList) => {
+  const userIDList = userList.map(({userID}) => userID)
+
+  if (userIDList.indexOf(userID) === 0 && gameList.length > 0) {
+    return gameList.pop().data
+  }
+
+  return null
+}
 
 /* istanbul ignore next */
 const socket = (url) => {
@@ -109,6 +124,11 @@ const socket = (url) => {
     }
     socket.on('connect', () => {
       socket.emit('join', {roomID, userID, userName}, callback)
+
+      let gameData = syncGameData(activityList.get('game'), userID, userList)
+      if (gameData) {
+        socket.emit('sync-game-data', gameData)
+      }
     })
   }
 
@@ -191,5 +211,5 @@ const socket = (url) => {
   }
 }
 
-export {chunksBy, activityList, generateID, userListWithout}
+export {chunksBy, activityList, generateID, userListWithout, syncGameData}
 export default socket
