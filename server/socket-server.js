@@ -71,7 +71,10 @@ io.on('connection', socket => {
       }))
     })
 
-    socket.on('sync-game-data', gameData => room(gameData, 'gameData'))
+    socket.on('sync-game-data', gameData => {
+      console.log(`received game data from client at "${roomID}"`)
+      room(gameData, 'gameData')
+    })
 
     socket.on('disconnect', () => {
       console.log(`user "${user.userName}" disconnected from "${roomID}"`)

@@ -77,21 +77,6 @@ module.exports = {
       ]
     }
   ],
-  "skillList": [
-    {
-      "label": "plus",
-      "icon": "plus"
-    }, {
-      "label": "star",
-      "icon": "star"
-    }, {
-      "label": "circle",
-      "icon": "circle"
-    }, {
-      "label": "drop",
-      "icon": "drop"
-    }
-  ],
   "eventList": [
     {
       "label": "Feriado prolongado!",
@@ -248,31 +233,31 @@ module.exports = {
   "iconList": [
     {
       "label": "very-good",
-      "url": ""
+      "url": "/assets/images/very-good.svg"
     }, {
       "label": "good",
-      "url": ""
+      "url": "/assets/images/good.svg"
     }, {
       "label": "bad",
-      "url": ""
+      "url": "/assets/images/bad.svg"
     }, {
       "label": "very-bad",
-      "url": ""
+      "url": "/assets/images/very-bad.svg"
     }, {
       "label": "worst",
-      "url": ""
+      "url": "/assets/images/worst.svg"
     },    {
       "label": "plus",
-      "url": ""
+      "url": "/assets/images/plus.svg"
     }, {
       "label": "star",
-      "url": ""
+      "url": "/assets/images/star.svg"
     }, {
       "label": "circle",
-      "url": ""
+      "url": "/assets/images/circle.svg"
     }, {
       "label": "drop",
-      "url": ""
+      "url": "/assets/images/drop.svg"
     }
   ]
 }

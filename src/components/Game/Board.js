@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import './Board.css'
 import GameContext from '../../context/GameContext'
-import CardBox from './CardBox'
+import CharacterDeck from './CharacterDeck'
 
 const Board = ({socket}) => {
   let [roundStarted, setRoundStarted] = useState(true)
@@ -25,7 +25,7 @@ const Board = ({socket}) => {
 
   return (
     <div>
-      <CardBox />
+      <CharacterDeck />
       <p>
         Online users: {userList.map(val => val.userName).join(',')}
       </p>

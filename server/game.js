@@ -26,7 +26,7 @@ const applyMultiplierBy = multiplierList => {
 }
 
 const gameSetup = (userList) => {
-  const {characterList, enemyList, eventList, skillList, multiplierList} = data
+  const {characterList, enemyList, eventList, iconList, multiplierList} = data
   const len = userList.length
   let getCharacters = getCharactersBy(characterList)
   let applyMultiplier = applyMultiplierBy(multiplierList)
@@ -47,7 +47,8 @@ const gameSetup = (userList) => {
   return {
     characterList: newCharacterList,
     enemyList: newEnemyList,
-    eventList: shuffle(eventList)
+    eventList: shuffle(eventList),
+    iconList
   }
 }
 
