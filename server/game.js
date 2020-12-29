@@ -44,10 +44,7 @@ const gameSetup = (userList) => {
     }
   })
 
-  console.log(newCharacterList)
-
   return {
-    round: 1,
     characterList: newCharacterList,
     enemyList: newEnemyList,
     eventList: shuffle(eventList)
@@ -63,10 +60,7 @@ const newRound = (userList, gameData) => {
 
   // check resistances x time (destroy enemy, get time bonus)
   // check time
-  return {
-    ...gameData,
-    round: gameData.round + 1
-  }
+  return gameData
 }
 
 module.exports = {

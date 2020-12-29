@@ -22,19 +22,21 @@ const App = () => {
 
   useEffect(() => {
     const clear = []
-    clear.push(connection.handleUserListUpdate(setUserList))
-    clear.push(connection.handleCurrentState((res) => {
-      setGameData(prev => ({...prev, ...res.data.gameData}))
-    }))
-    clear.push(connection.handleConnection((type, res) => {
-      setUserData(prev => ({...prev, isOnline: type === 'connected'}))
-      if (type === 'connected') {
-        connection.askCurrentState()
+    const handleHistory = (data) => {
+      const activity = data.filter(val => val.type === 'game')
+      const rounds = activity.length
+      if (activity.length > 0) {
+        setGameData({...activity.pop().data, round: rounds})
       }
+    }
+    clear.push(connection.handleUserListUpdate(setUserList))
+    clear.push(connection.handleHistory(handleHistory))
+    clear.push(connection.handleConnection((type) => {
+      setUserData(prev => ({...prev, isOnline: type === 'connected'}))
     }))
 
     return () => clear.forEach(fn => fn())
-  }, [])
+  }, [setUserList])
 
   return (
     <GameContext.Provider value={{userList, userData, setUserData, gameData, setGameData}}>

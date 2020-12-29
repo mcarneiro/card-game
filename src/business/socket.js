@@ -167,9 +167,14 @@ const socket = (url) => {
   }
 
   const handleNewRound = (callback) => {
-    socket.on('new-round', callback)
+    const onNewRound = (data) => {
+      if (data.type === 'game') {
+        callback(data)
+      }
+    }
+    socket.on('user-activity', onNewRound)
 
-    return () => socket.off('new-round', callback)
+    return () => socket.off('new-round', onNewRound)
   }
 
   return {

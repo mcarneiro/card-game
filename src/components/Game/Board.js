@@ -15,8 +15,9 @@ const Board = ({socket}) => {
   useEffect(() => {
     const clearHandleNewRound = socket.handleNewRound(res => {
       setRoundStarted(true)
-      console.log('setGameData', res)
-      setGameData(res.data)
+      setGameData(prev => {
+        return {...res.data, round: prev.round + 1}
+      })
     })
 
     return clearHandleNewRound

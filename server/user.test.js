@@ -46,7 +46,8 @@ test('user is ready for next round', () => {
       {userID: '1', userName: 'test'},
       {userID: '2', userName: 'test2'}
     ],
-    readyList: ['test']
+    readyList: ['test'],
+    gameData: {}
   })
   let userData1 = {userID: '1', userName: 'test'}
   let userData2 = {userID: '2', userName: 'test2'}

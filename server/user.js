@@ -42,7 +42,7 @@ const readyBy = (room, user) => () => {
     room([], 'readyList')
 
     let {userList, gameData} = room()
-    if (gameData.round === 0) {
+    if (Object.keys(gameData).length === 0) {
       room(gameSetup(userList), 'gameData')
     } else {
       room(newRound(userList, gameData), 'gameData')

@@ -56,11 +56,6 @@ io.on('connection', socket => {
       message: 'connected'
     }))
     io.to(roomID).emit('ask-history', user.userID)
-
-    io.to(roomID).emit('current-state', systemActivity({
-      message: 'sync with current state',
-      data: room()
-    }))
   })
 
   .then(() => {
@@ -92,8 +87,14 @@ io.on('connection', socket => {
   .then(() => {
     let {roomID} = room()
     const onReady = ({ready}) => {
+      io.to(roomID).emit('user-activity', userActivity({
+        type: 'user',
+        message: 'ready for next round'
+      }))
+
       if (ready) {
-        io.to(roomID).emit('new-round', systemActivity({
+        io.to(roomID).emit('user-activity', systemActivity({
+          type: 'game',
           message: 'new round',
           data: room().gameData
         }))

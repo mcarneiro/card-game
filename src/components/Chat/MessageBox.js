@@ -11,15 +11,6 @@ const MessageBox = ({msgList}) => {
   const printMessages = useCallback(() => {
     return msgList.map(value => {
       switch (value.type) {
-        case 'user':
-          return (
-            <Activity
-              key={value.id}
-              isMe={value.userName === userData.userName}
-              userName={value.userName}
-              time={value.timestamp}
-              msg={value.message} />
-          )
         case 'message':
           return (
             <Message
@@ -31,6 +22,14 @@ const MessageBox = ({msgList}) => {
             />
           )
         default:
+          return (
+            <Activity
+              key={value.id}
+              isMe={value.userName === userData.userName}
+              userName={value.userName}
+              time={value.timestamp}
+              msg={value.message} />
+          )
           return null
       }
     })
