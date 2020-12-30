@@ -1,21 +1,9 @@
 import {
-  generateID,
   activityList,
   chunksBy,
   userListWithout,
   syncGameData
 } from './socket'
-
-test('generate IDs that are not equal', () => {
-  let arr = []
-  for(let i = 0; i < 1000; i++) {
-    arr[i] = generateID()
-  }
-  let arr2 = arr.filter((val, i, arr) => arr.indexOf(val) === i)
-
-  expect(arr2.length).toBe(arr.length)
-  expect(generateID(1)).not.toBe(generateID(1))
-});
 
 test('add new activity to activityList', () => {
   activityList.add([

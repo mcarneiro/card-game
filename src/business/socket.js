@@ -1,4 +1,5 @@
 import io from 'socket.io/client-dist/socket.io'
+import {generateID} from '../utils'
 
 const chunksBy = (userID) => {
   let totalChunks = 0
@@ -55,10 +56,6 @@ const activityList = (() => {
 })()
 
 const userListWithout = (userList, userID) => userList.filter(data => data.userID !== userID)
-const generateID = (() => {
-  let i = 0
-  return (timestamp) => ((timestamp || Date.now()) * Math.round(Math.random() * 10000) + i++).toString(36)
-})()
 const noop = () => undefined
 
 const syncGameData = (gameList, userID, userList) => {
