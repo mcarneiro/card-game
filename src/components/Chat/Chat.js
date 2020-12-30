@@ -7,13 +7,12 @@ const Chat = ({socket}) => {
   const [msgList, setMsgList] = useState([])
 
   useEffect(() => {
-    const clearHandleHistory = socket.handleHistory(setMsgList)
-    const clearHandleUserActivity = socket.handleUserActivity(setMsgList)
+    const clear = [
+      socket.handleHistory(setMsgList),
+      socket.handleUserActivity(setMsgList)
+    ]
 
-    return () => {
-      clearHandleHistory()
-      clearHandleUserActivity()
-    }
+    return () => clear.map(fn => fn())
   }, [socket, setMsgList])
 
   return (

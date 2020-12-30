@@ -30,7 +30,6 @@ const MessageBox = ({msgList}) => {
               time={value.timestamp}
               msg={value.message} />
           )
-          return null
       }
     })
   }, [msgList, userData.userName])

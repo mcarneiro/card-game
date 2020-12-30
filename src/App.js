@@ -13,7 +13,9 @@ const App = () => {
     round: 0,
     characterList: [],
     enemyList: [],
-    eventList: []
+    eventList: [],
+    iconList: [],
+    roundData: {}
   })
   let [userData, setUserData] = useState({
     userName: '',
@@ -22,22 +24,24 @@ const App = () => {
   let [userList, setUserList] = useState([])
 
   useEffect(() => {
-    const clear = []
-    const handleHistory = (data) => {
-      const activity = data.filter(val => val.type === 'game')
-      const rounds = activity.length
-      if (activity.length > 0) {
-        setGameData({...activity.pop().data, round: rounds})
-      }
-    }
-    clear.push(connection.handleUserListUpdate(setUserList))
-    clear.push(connection.handleHistory(handleHistory))
-    clear.push(connection.handleConnection((type) => {
-      setUserData(prev => ({...prev, isOnline: type === 'connected'}))
-    }))
+    const clear = [
+      connection.handleUserListUpdate(setUserList),
 
-    return () => clear.forEach(fn => fn())
-  }, [setUserList])
+      connection.handleHistory((data) => {
+        const activity = data.filter(val => val.type === 'game')
+        const rounds = activity.length
+        if (activity.length > 0) {
+          setGameData(prev => ({...prev, ...activity.pop().data, round: rounds}))
+        }
+      }),
+
+      connection.handleConnection((type) => {
+        setUserData(prev => ({...prev, isOnline: type === 'connected'}))
+      })
+    ]
+
+    return () => clear.map(fn => fn())
+  }, [setUserList, setGameData, setUserData])
 
   return (
     <GameContext.Provider value={{userList, userData, setUserData, gameData, setGameData}}>

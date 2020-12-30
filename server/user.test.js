@@ -39,30 +39,43 @@ test('create userActivity object', () => {
   expect(activity.message).toBe('b')
 })
 
-test('user is ready to start the game / for next round', () => {
-  const room = roomBy('r')
-  room({
-    userList: [
-      {userID: '1', userName: 'test'},
-      {userID: '2', userName: 'test2'}
-    ],
-    readyList: ['test'],
-    gameData: {}
-  })
-  let userData1 = {userID: '1', userName: 'test'}
-  let userData2 = {userID: '2', userName: 'test2'}
-  let ret = readyBy(room, userData1)()
+const room = roomBy('r')
+const userData1 = {userID: '1', userName: 'test'}
+const userData2 = {userID: '2', userName: 'test2'}
+const userData3 = {userID: '3', userName: 'test3'}
 
+room({
+  userList: [
+    {userID: '1', userName: 'test'},
+    {userID: '2', userName: 'test2'},
+    {userID: '3', userName: 'test3'}
+  ],
+  readyList: ['test'],
+  gameData: {}
+})
+
+test('user is ready to start the game / for next round', () => {
+  let ret = readyBy(room, userData1)()
   expect(ret.ready).toBe(false)
   expect(ret.readyList).toStrictEqual(['test'])
 
   ret = readyBy(room, userData2)()
-  expect(ret.ready).toBe(true)
   expect(ret.readyList).toStrictEqual(['test', 'test2'])
 
-  room([], 'cardData')
+  ret = readyBy(room, userData3)()
+  expect(ret.readyList).toStrictEqual(['test', 'test2', 'test3'])
+  expect(ret.ready).toBe(true)
+})
 
-  readyBy(room, userData1)()
-  ret = readyBy(room, userData2)()
+
+test('round data gets merged and cleaned after ready', () => {
+  readyBy(room, userData1)({'test': {resistanceID: '1'}})
+  ret = readyBy(room, userData2)({'test2': {resistanceID: '2'}})
+  expect(room().gameData.roundData.test.resistanceID).toBe('1')
+  expect(room().gameData.roundData.test2.resistanceID).toBe('2')
+
+  ret = readyBy(room, userData3)({'test3': {resistanceID: '3'}})
+  expect(ret.roundData.test3.resistanceID).toBe('3')
+  expect(Object.keys(room().gameData.roundData).length).toBe(0)
   expect(ret.ready).toBe(true)
 })

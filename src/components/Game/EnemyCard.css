@@ -38,6 +38,10 @@
   text-align: center;
 }
 
+.resistance > li.-active {
+  border: 1px solid red
+}
+
 .resistance > li > img {
   display: block;
   width: 100%;

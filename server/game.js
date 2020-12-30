@@ -36,7 +36,8 @@ const gameSetupBy = data => (userList) => {
     .map((val) => ({
         ...val,
         enemyID: generateID(),
-        resistance: val.resistance.map(applyMultiplier).map(val => ({...val, resistanceID: generateID()}))
+        resistance: val.resistance.map(applyMultiplier).map(val => ({...val, resistanceID: generateID()})),
+        rounds: {...val.rounds, roundsID: generateID()}
     }))
 
   let newCharacterList = getCharacters(len)
@@ -55,20 +56,26 @@ const gameSetupBy = data => (userList) => {
     characterList: newCharacterList,
     enemyList: newEnemyList,
     eventList: newEventList,
-    iconList
+    iconList,
+    roundData: {}
   }
 }
 const gameSetup = gameSetupBy(data)
 
-const newRound = (userList, gameData) => {
+const newRound = (gameData) => {
 
-  // get assigns
-  // remove resistances
+  // check gameData.roundData for actions
+
+  // console.log(gameData)
+
+  // find remove by id and decrease resistance amount
   // shuffle event
-  // remove time (enemy, blocks, ignition)
+  // decrease amount of time in all elements
 
   // check resistances x time (destroy enemy, get time bonus)
   // check time
+
+  gameData.roundData = {}
   return gameData
 }
 

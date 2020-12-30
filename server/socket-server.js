@@ -96,10 +96,11 @@ io.on('connection', socket => {
 
   .then(() => {
     let {roomID} = room()
-    const onReady = ({ready}) => {
+    const onReady = ({ready, roundData}) => {
       io.to(roomID).emit('user-activity', userActivity({
         type: 'user',
-        message: 'ready for next round'
+        message: 'ready for next round',
+        data: roundData
       }))
 
       if (ready) {

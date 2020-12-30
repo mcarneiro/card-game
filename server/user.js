@@ -23,7 +23,7 @@ const userActivityBy = user => (data) => {
   }
 }
 
-const readyBy = (room, user) => () => {
+const readyBy = (room, user) => (roundData) => {
   let ready = false
   const {readyList, userList} = room()
   let newReadyList = readyList.concat()
@@ -36,6 +36,12 @@ const readyBy = (room, user) => () => {
     ready = true
   }
 
+  if (roundData && Object.keys(roundData).length > 0) {
+    let {gameData} = room()
+    gameData.roundData = {...gameData.roundData, ...roundData}
+    room(gameData, 'gameData')
+  }
+
   room(newReadyList, 'readyList')
 
   if (ready) {
@@ -45,11 +51,12 @@ const readyBy = (room, user) => () => {
     if (Object.keys(gameData).length === 0) {
       room(gameSetup(userList), 'gameData')
     } else {
-      room(newRound(userList, gameData), 'gameData')
+      room(newRound(gameData), 'gameData')
     }
   }
 
   return {
+    roundData,
     ready,
     readyList: newReadyList
   }

@@ -119,6 +119,7 @@ const socket = (url) => {
     if (socket.connected) {
       socket.emit('join', {roomID, userID, userName}, callback)
     }
+    //TODO: CHANGE THIS
     socket.on('connect', () => {
       socket.emit('join', {roomID, userID, userName}, callback)
 
@@ -173,14 +174,13 @@ const socket = (url) => {
   const handleUserActivity = (callback = noop) => {
     const evt = () => callback(activityList.get())
 
-    evt()
     socket.on('user-activity', evt)
 
     return () => socket.off('user-activity', evt)
   }
 
-  const sendReadyForNextRound = () => {
-    socket.emit('ready-for-next-round')
+  const sendReadyForNextRound = (data) => {
+    socket.emit('ready-for-next-round', data)
   }
 
   const handleNewRound = (callback) => {

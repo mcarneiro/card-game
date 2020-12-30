@@ -16,7 +16,7 @@ const EnemyDeck = () => {
     val.rounds = {...val.rounds, ...getIconAsset(val.rounds.icon)}
 
     return (
-      <EnemyCard data={val} />
+      <EnemyCard key={val.enemyID} data={val} />
     )
   })
 

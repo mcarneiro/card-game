@@ -10,7 +10,8 @@ const GameContext = React.createContext({
     characterList: [],
     enemyList: [],
     eventList: [],
-    iconList: []
+    iconList: [],
+    roundData: {}
   },
   userList: []
 })
