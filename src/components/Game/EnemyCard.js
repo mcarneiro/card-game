@@ -1,11 +1,10 @@
-import {generateID} from '../../business/socket'
 import './EnemyCard.css'
 
 const EnemyCard = ({data}) => {
 
   let resistanceList = data.resistance.concat(data.rounds).map(val => {
     return (
-      <li key={generateID()}>
+      <li key={val.resistanceID}>
         <img src={val.url} />
         <strong>{val.amount}</strong>
       </li>

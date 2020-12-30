@@ -36,7 +36,7 @@ const gameSetupBy = data => (userList) => {
     .map((val) => ({
         ...val,
         enemyID: generateID(),
-        resistance: val.resistance.map(applyMultiplier)
+        resistance: val.resistance.map(applyMultiplier).map(val => ({...val, resistanceID: generateID()}))
     }))
 
   let newCharacterList = getCharacters(len)

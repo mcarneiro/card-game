@@ -32,5 +32,6 @@ test('setup with more tasks then cards will reuse multiplier list', () => {
   expect(resistanceAmounts).toContain(5)
 
   expect(game.characterList[0].characterID).not.toBeNull()
-  expect(game.enemyList[0].characterID).not.toBeNull()
+  expect(game.enemyList[0].enemyID).not.toBeNull()
+  expect(game.enemyList[0].resistance[0].resistanceID).not.toBeNull()
 })
