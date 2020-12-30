@@ -46,3 +46,17 @@ test('join to a room', () => {
   expect(joinData.room().roomID).toBe('r2')
 
 })
+
+test('reset room', () => {
+  const room = roomBy('r')
+  room({
+    roomID: 'r',
+    userList: [
+      {userID: '1', userName: 'test'}
+    ],
+    readyList: []
+  })
+
+  expect(room('reset').userList.length).toBe(0)
+  expect(room('reset').roomID).toBe('r')
+})

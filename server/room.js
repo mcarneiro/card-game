@@ -15,6 +15,16 @@ const roomBy = roomID => {
     if (args.length === 1) {
       roomList[roomID] = args[0]
     }
+
+    if (args[0] === 'reset') {
+      roomList[roomID] = {
+        roomID,
+        userList: [],
+        readyList: [],
+        gameData: {}
+      }
+    }
+
     if (args.length === 2) {
       roomList[roomID][args[1]] = args[0]
     }
@@ -35,12 +45,7 @@ const joinBy = (data, callback) => {
   callback({'type': 'success'})
 
   if (!room()) {
-    room({
-      roomID,
-      userList: [],
-      readyList: [],
-      gameData: {}
-    })
+    room('reset')
   }
 
   return {

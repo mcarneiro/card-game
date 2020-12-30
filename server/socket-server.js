@@ -20,6 +20,10 @@ io.on('connection', socket => {
 
   const updateUserList = userList => {
     let {roomID} = room(userList, 'userList')
+    if (userList.length === 0) {
+      room('reset')
+      return;
+    }
     io.to(roomID).emit('user-list', userList)
   }
 

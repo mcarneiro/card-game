@@ -39,7 +39,7 @@ test('create userActivity object', () => {
   expect(activity.message).toBe('b')
 })
 
-test('user is ready for next round', () => {
+test('user is ready to start the game / for next round', () => {
   const room = roomBy('r')
   room({
     userList: [

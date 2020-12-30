@@ -1,3 +1,45 @@
 .character-deck {
   display: flex;
 }
+
+.character-deck > .card {
+  z-index: 10;
+  margin-left: 5px;
+}
+
+.character-deck > .card:first-child {
+  margin-left: 0;
+}
+
+.character-deck > .card:nth-child(n+3) {
+  margin-left: -52px;
+  z-index: 9;
+}
+
+.character-deck > .card:nth-child(3) {
+  z-index: 8
+}
+
+.character-deck > .card:nth-child(4) {
+  z-index: 7
+}
+
+.character-deck > .card:nth-child(5) {
+  z-index: 6
+}
+
+.character-deck > .card:nth-child(6) {
+  z-index: 5
+}
+
+.character-deck > .card:nth-child(7) {
+  z-index: 4
+}
+
+.character-deck > .card:nth-child(8) {
+  z-index: 3
+}
+
+.character-deck > .card:nth-child(9) {
+  z-index: 2
+}

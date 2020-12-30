@@ -1,6 +1,6 @@
 const data = require('./data/core')
 const { generateID } = require('./utils')
-const shuffle = arr => arr.sort((a,b) => Math.random() >= 0.5 ? 1 : -1)
+const shuffle = arr => arr.concat().sort((a,b) => Math.random() >= 0.5 ? 1 : -1)
 
 const getCharactersBy = list => (len) => {
   let characterList = list.concat()
@@ -25,7 +25,7 @@ const applyMultiplierBy = multiplierList => {
   }
 }
 
-const gameSetup = (userList) => {
+const gameSetupBy = data => (userList) => {
   const {characterList, enemyList, eventList, iconList, multiplierList} = data
   const len = userList.length
   let getCharacters = getCharactersBy(characterList)
@@ -37,10 +37,10 @@ const gameSetup = (userList) => {
     return val
   })
 
-  newEnemyList = newEnemyList.map((enemy, i) => {
+  newEnemyList = newEnemyList.map(enemy => {
     return {
       ...enemy,
-      resistance: applyMultiplier(enemy.resistance)
+      resistance: enemy.resistance.map(applyMultiplier)
     }
   })
 
@@ -51,6 +51,7 @@ const gameSetup = (userList) => {
     iconList
   }
 }
+const gameSetup = gameSetupBy(data)
 
 const newRound = (userList, gameData) => {
 
@@ -65,6 +66,7 @@ const newRound = (userList, gameData) => {
 }
 
 module.exports = {
+  gameSetupBy,
   gameSetup,
   newRound
 }
