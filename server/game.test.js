@@ -4,7 +4,7 @@ test('setup with more tasks then cards will reuse multiplier list', () => {
   const userList = [{userName: 'a'}]
   const gameSetup = gameSetupBy({
     "characterList": [{}],
-    "eventList": [],
+    "eventList": [{}],
     "enemyList": [{
       "resistance": [
         {
@@ -30,4 +30,7 @@ test('setup with more tasks then cards will reuse multiplier list', () => {
   expect(resistanceAmounts).toContain(1)
   expect(resistanceAmounts).toContain(2)
   expect(resistanceAmounts).toContain(5)
+
+  expect(game.characterList[0].characterID).not.toBeNull()
+  expect(game.enemyList[0].characterID).not.toBeNull()
 })

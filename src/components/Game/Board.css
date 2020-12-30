@@ -1,0 +1,14 @@
+.board {
+  flex-grow: 1;
+  position: relative;
+}
+
+.button-next-round {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  border: 1px solid red;
+  padding: 5px 10px;
+  color: #fff;
+  background: blue;
+}

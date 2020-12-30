@@ -21,6 +21,7 @@ io.on('connection', socket => {
   const updateUserList = userList => {
     let {roomID} = room(userList, 'userList')
     if (userList.length === 0) {
+      console.log(`no more users connected, reseting game data for "${roomID}"`)
       room('reset')
       return;
     }

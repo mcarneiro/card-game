@@ -4,6 +4,7 @@ import Board from './components/Game/Board'
 import Chat from './components/Chat/Chat'
 import Register from './components/Register'
 import GameContext from './context/GameContext'
+import './App.css'
 
 const connection = socket('ws://localhost:3001')
 

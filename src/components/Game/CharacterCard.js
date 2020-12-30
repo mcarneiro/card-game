@@ -15,7 +15,7 @@ const CharacterCard = ({name, skillList}) => {
   let skillsClassName = `skills -quant-${skillList.length}`
 
   return (
-    <div className="card -character">
+    <div className="character-card">
       <p className="name">{name}</p>
       <ul className={skillsClassName}>
         {skills}

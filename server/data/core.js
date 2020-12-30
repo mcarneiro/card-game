@@ -43,7 +43,10 @@ module.exports = {
       "label": "Pepé",
       "description": "Projeto para divulgação de um novo produto.",
       "icon": "",
-      "rounds": 5,
+      "rounds": {
+        "icon": "clock",
+        "amount": 5
+      },
       "resistance": [
         {
           "label": "plus",
@@ -54,7 +57,10 @@ module.exports = {
       "label": "RedBird",
       "description": "Automatização de comunicação de eventos.",
       "icon": "",
-      "rounds": 4,
+      "rounds": {
+        "icon": "clock",
+        "amount": 4
+      },
       "resistance": [
         {
           "label": "star",
@@ -65,7 +71,10 @@ module.exports = {
       "label": "Guinness",
       "description": "Projeto com foco em geração de leads.",
       "icon": "",
-      "rounds": 8,
+      "rounds": {
+        "icon": "clock",
+        "amount": 8
+      },
       "resistance": [
         {
           "label": "plus",
@@ -258,6 +267,9 @@ module.exports = {
     }, {
       "label": "drop",
       "url": "/assets/images/drop.svg"
+    }, {
+      "label": "clock",
+      "url": "/assets/images/clock.svg"
     }
   ]
 }

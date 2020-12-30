@@ -30,24 +30,31 @@ const gameSetupBy = data => (userList) => {
   const len = userList.length
   let getCharacters = getCharactersBy(characterList)
   let applyMultiplier = applyMultiplierBy(multiplierList)
-  let newEnemyList = shuffle(enemyList).slice(0, Math.ceil(len * 0.5))
-  let newCharacterList = getCharacters(len).map((val, i) => {
-    val.name = userList[i].userName
-    val.characterID = generateID()
-    return val
-  })
 
-  newEnemyList = newEnemyList.map(enemy => {
-    return {
-      ...enemy,
-      resistance: enemy.resistance.map(applyMultiplier)
-    }
-  })
+  let newEnemyList = shuffle(enemyList)
+    .slice(0, Math.ceil(len * 0.5))
+    .map((val) => ({
+        ...val,
+        enemyID: generateID(),
+        resistance: val.resistance.map(applyMultiplier)
+    }))
+
+  let newCharacterList = getCharacters(len)
+    .map((val, i) => ({
+      ...val,
+      name: userList[i].userName,
+      characterID: generateID()
+    }))
+
+  let newEventList = shuffle(eventList).map((val) => ({
+    ...val,
+    eventId: generateID()
+  }))
 
   return {
     characterList: newCharacterList,
     enemyList: newEnemyList,
-    eventList: shuffle(eventList),
+    eventList: newEventList,
     iconList
   }
 }

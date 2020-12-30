@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import './Board.css'
 import GameContext from '../../context/GameContext'
 import CharacterDeck from './CharacterDeck'
+import EnemyDeck from './EnemyDeck'
 
 const Board = ({socket}) => {
   let [roundStarted, setRoundStarted] = useState(true)
@@ -24,16 +25,15 @@ const Board = ({socket}) => {
   }, [socket, setRoundStarted, setGameData])
 
   return (
-    <div>
+    <div className="board">
       <CharacterDeck />
+      <EnemyDeck />
       <p>
         Online users: {userList.map(val => val.userName).join(',')}
       </p>
-      <p>
-        Round: {JSON.stringify(gameData)}
-      </p>
+
       { roundStarted &&
-      <button onClick={handleClick}>
+      <button className="button-next-round" onClick={handleClick}>
         {gameData.round > 0 ? 'Ready for the next round' : 'Start game'}
       </button>
       }

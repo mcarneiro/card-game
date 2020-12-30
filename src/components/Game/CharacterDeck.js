@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import './CharacterDeck.css'
-import gameContext, {getIconAssets} from '../../context/GameContext'
+import gameContext, {getIconAssetBy} from '../../context/GameContext'
 import CharacterCard from './CharacterCard'
 
 const CharacterDeck = () => {
@@ -12,7 +12,7 @@ const CharacterDeck = () => {
 
   let characterList = gameData.characterList.sort((a,b) => (a.name === userData.userName) ? -1 : 1)
   let cardList = characterList.map(val => {
-    const skillList = getIconAssets(val.skill, gameData.iconList)
+    const skillList = val.skill.map(getIconAssetBy(gameData.iconList))
 
     return (
       <CharacterCard key={val.characterID} name={val.name} skillList={skillList} />

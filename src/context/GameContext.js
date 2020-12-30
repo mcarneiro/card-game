@@ -15,19 +15,13 @@ const GameContext = React.createContext({
   userList: []
 })
 
-const getIconAssets = (list, iconList) => {
-  const retList = Array.isArray(list) ? list : [list]
-  if (!iconList) {
-    return list
+const getIconAssetBy = (iconList = []) => (label) => {
+  const index = iconList.findIndex(elm => elm.label === label)
+  if (index >= 0) {
+    return iconList[index]
   }
-  return retList.map(val => {
-    const index = iconList.findIndex(elm => elm.label === val)
-    if (index >= 0) {
-      return iconList[index]
-    }
-    return val
-  })
+  return label
 }
 
-export {getIconAssets}
+export {getIconAssetBy}
 export default GameContext
