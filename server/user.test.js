@@ -69,13 +69,13 @@ test('user is ready to start the game / for next round', () => {
 
 
 test('round data gets merged and cleaned after ready', () => {
-  readyBy(room, userData1)({'test': {resistanceID: '1'}})
-  ret = readyBy(room, userData2)({'test2': {resistanceID: '2'}})
-  expect(room().gameData.roundData.test.resistanceID).toBe('1')
-  expect(room().gameData.roundData.test2.resistanceID).toBe('2')
+  readyBy(room, userData1)({'test': {resistanceID: ['1']}})
+  ret = readyBy(room, userData2)({'test2': {resistanceID: ['2']}})
+  expect(room().gameData.roundData.test.resistanceID).toStrictEqual(['1'])
+  expect(room().gameData.roundData.test2.resistanceID).toStrictEqual(['2'])
 
-  ret = readyBy(room, userData3)({'test3': {resistanceID: '3'}})
-  expect(ret.roundData.test3.resistanceID).toBe('3')
+  ret = readyBy(room, userData3)({'test3': {resistanceID: ['3']}})
+  expect(ret.roundData.test3.resistanceID).toStrictEqual(['3'])
   expect(Object.keys(room().gameData.roundData).length).toBe(0)
   expect(ret.ready).toBe(true)
 })

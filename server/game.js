@@ -63,20 +63,44 @@ const gameSetupBy = data => (userList) => {
 const gameSetup = gameSetupBy(data)
 
 const newRound = (gameData) => {
+  let newGameData = Object.keys(gameData.roundData)
+    .reduce((gameData, label) => {
+      let newGameData = JSON.parse(JSON.stringify(gameData))
+      let roundData = gameData.roundData[label]
 
-  // check gameData.roundData for actions
+      newGameData.enemyList = gameData.enemyList.map(enemy => {
+        let resistance = enemy.resistance.map(resistance => {
+          let toKill = roundData.resistanceID.join('').split(resistance.resistanceID).slice(1).length
 
-  // console.log(gameData)
+          return {
+            ...resistance,
+            amount: resistance.amount - toKill
+          }
+        })
 
-  // find remove by id and decrease resistance amount
+        return {...enemy, resistance}
+      })
+
+      return newGameData
+    }, gameData)
+
+  newGameData.enemyList = newGameData.enemyList.map(enemy => {
+    return {
+      ...enemy,
+      rounds: {
+        ...enemy.rounds,
+        amount: enemy.rounds.amount - 1
+      }
+    }
+  })
+
   // shuffle event
-  // decrease amount of time in all elements
 
   // check resistances x time (destroy enemy, get time bonus)
   // check time
 
-  gameData.roundData = {}
-  return gameData
+  newGameData.roundData = {}
+  return newGameData
 }
 
 module.exports = {

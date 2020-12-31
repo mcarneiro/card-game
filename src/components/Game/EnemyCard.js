@@ -1,27 +1,36 @@
 import {useContext} from 'react'
-import {generateID} from '../../utils'
 import './EnemyCard.css'
 import GameContext from '../../context/GameContext'
 
 const EnemyCard = ({data}) => {
   let {userData, gameData, setGameData} = useContext(GameContext)
 
-  const handleResistanceClick = ({resistanceID}) => e => {
+  const handleResistanceClick = ({resistanceID, label}) => e => {
+    const [character] = gameData.characterList.filter((character) => character.name === userData.userName)
+    if (character.skill.indexOf(label) < 0) {
+      return
+    }
     setGameData(prev => {
       let newGameData = {...prev}
       if (!newGameData.roundData[userData.userName]) {
-        newGameData.roundData[userData.userName] = {}
+        newGameData.roundData[userData.userName] = {resistanceID: []}
       }
-      newGameData.roundData[userData.userName].resistanceID = resistanceID
+      if (newGameData.roundData[userData.userName].resistanceID.length < character.canDestroy) {
+        newGameData.roundData[userData.userName].resistanceID.push(resistanceID)
+      }
       return newGameData
     })
   }
 
   let resistanceList = data.resistance.map(val => {
-    const itemClassName = (gameData.roundData[userData.userName] ||{}).resistanceID === val.resistanceID ? '-active' : ''
+    let itemClassName = ''
+    let roundData = gameData.roundData[userData.userName]
+    if (roundData && roundData.resistanceID.indexOf(val.resistanceID) >= 0) {
+      itemClassName = '-active'
+    }
     return (
       <li key={val.resistanceID} className={itemClassName} onClick={handleResistanceClick(val)}>
-        <img src={val.url} />
+        <img alt={val.label} src={val.url} />
         <strong>{val.amount}</strong>
       </li>
     )
@@ -38,7 +47,7 @@ const EnemyCard = ({data}) => {
       <ul className="resistance">
         {resistanceList}
         <li key={data.rounds.roundsID} className="rounds">
-          <img src={data.rounds.url} />
+          <img alt={data.rounds.label} src={data.rounds.url} />
           <strong>{data.rounds.amount}</strong>
         </li>
       </ul>
