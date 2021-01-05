@@ -16,7 +16,8 @@ const App = () => {
     enemyList: [],
     eventList: [],
     iconList: [],
-    roundData: {}
+    roundData: {},
+    readyForNextRound: false
   })
   let [userData, setUserData] = useState({
     userName: '',

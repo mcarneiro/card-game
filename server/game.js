@@ -72,14 +72,22 @@ const newRound = (gameData) => {
       newGameData.enemyList = gameData.enemyList.map(enemy => {
         let resistance = enemy.resistance.map(resistance => {
           let toKill = roundData.resistanceID.join('').split(resistance.resistanceID).slice(1).length
+          let amount = Math.max(resistance.amount - toKill, 0)
 
           return {
             ...resistance,
-            amount: resistance.amount - toKill
+            amount,
+            destroyed: amount <= 0
           }
         })
 
-        return {...enemy, resistance}
+        let destroyed = resistance.filter(resistance => !resistance.destroyed).length === 0
+
+        return {
+          ...enemy,
+          resistance,
+          destroyed
+        }
       })
 
       return newGameData
@@ -90,7 +98,7 @@ const newRound = (gameData) => {
       ...enemy,
       rounds: {
         ...enemy.rounds,
-        amount: enemy.rounds.amount - 1
+        amount: enemy.rounds.amount - (enemy.destroyed ? 0 : 1)
       }
     }
   })

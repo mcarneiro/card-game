@@ -11,7 +11,8 @@ const GameContext = React.createContext({
     enemyList: [],
     eventList: [],
     iconList: [],
-    roundData: {}
+    roundData: {},
+    readyForNextRound: false
   },
   userList: []
 })

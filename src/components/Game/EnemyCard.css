@@ -9,6 +9,10 @@
   padding: 2px;
 }
 
+.enemy-card.-destroyed {
+  background: #ff7474
+}
+
 .enemy-card > .name {
   margin: 0;
   margin: 5px 0;
@@ -39,7 +43,15 @@
 }
 
 .resistance > li.-active {
-  border: 1px solid red
+  border: 1px solid red;
+}
+
+.resistance > li.-cant-add {
+  border: 1px solid green;
+}
+
+.resistance > li.-destroyed {
+  opacity: 0.25;
 }
 
 .resistance > li > img {

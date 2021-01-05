@@ -5,21 +5,29 @@ const gameReducer = (state, {type, payload}) => {
   switch (type) {
     case 'FROM_HISTORY':
       const lastRound = payload.filter(val => val.type === 'game' && val.message === 'new round').pop()
-      const lastRoundData = payload.filter(val => val.type === 'game' && val.message === 'round data').pop()
+      const lastRoundData = payload.filter(val => val.type === 'game' && val.message === 'round data' && val.timestamp > lastRound.timestamp).pop()
       if (lastRound) {
         return {
           ...clone(state),
           ...lastRound.data,
-          roundData: idx('data', lastRoundData, {})
+          roundData: idx(['data'], lastRoundData, {})
         }
       }
       return state
 
+    case 'READY':
+      return {
+        ...clone(state),
+        readyForNextRound: true
+      }
+
     case 'NEW_ROUND':
       return {
         ...clone(state),
-        ...payload
+        ...payload,
+        readyForNextRound: false
       }
+
     case 'ROUND_UPDATE':
       let isEqual = Object.keys(payload).reduce((acc, val) => {
         let localResistanceList = idx(['roundData', val, 'resistanceID'], state, [])
@@ -44,7 +52,7 @@ const gameReducer = (state, {type, payload}) => {
 
     case 'ASSIGN':
       const [character] = state.characterList.filter((character) => character.name === payload.userName)
-      if (character.skill.indexOf(payload.label) < 0) {
+      if (character.skill.indexOf(payload.label) < 0 || payload.amountSelected >= payload.amount) {
         return state
       }
       newGameData = clone(state)

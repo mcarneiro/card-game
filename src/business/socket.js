@@ -148,16 +148,6 @@ const socket = (url) => {
     }
   }
 
-  const askCurrentState = () => {
-    socket.emit('get-current-state')
-  }
-
-  const handleCurrentState = (callback) => {
-    socket.on('current-state', callback)
-
-    return () => socket.off('current-state', callback)
-  }
-
   const handleHistory = (callback = noop) => {
     const evt = () => {
       chunkControl.whenReady(() => callback(activityList.get()))
@@ -219,9 +209,7 @@ const socket = (url) => {
     updateRoundData,
     handleRoundDataUpdate,
     sendReadyForNextRound,
-    handleNewRound,
-    askCurrentState,
-    handleCurrentState
+    handleNewRound
   }
 }
 

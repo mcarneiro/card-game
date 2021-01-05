@@ -6,13 +6,13 @@ import GameContext from '../../context/GameContext'
 const EnemyCard = ({data}) => {
   let {userData, gameState, gameDispatcher} = useContext(GameContext)
 
-  const handleResistanceClick = ({resistanceID, label}) => e => {
+  const handleResistanceClick = (resistance, amountSelected) => e => {
     gameDispatcher({
       type: 'ASSIGN',
       payload: {
         userName: userData.userName,
-        label,
-        resistanceID
+        ...resistance,
+        amountSelected
       }
     })
   }
@@ -29,16 +29,15 @@ const EnemyCard = ({data}) => {
   }
 
   let resistanceList = data.resistance.map(val => {
-    let itemClassName = ''
-    let removeButton = ''
+    let itemClassName = []
     let userActions = Object.keys(gameState.roundData)
-      .map(key => {
-        let amountSelected = gameState.roundData[key].resistanceID
+      .map(name => {
+        let amountSelected = gameState.roundData[name].resistanceID
           .filter((resistanceID) => val.resistanceID === resistanceID).length
 
         return {
           amount: amountSelected,
-          name: key
+          name
         }
       })
       .filter(obj => obj.amount > 0)
@@ -50,31 +49,42 @@ const EnemyCard = ({data}) => {
       }, {amount: 0, name: []})
 
       if (userActions.amount > 0) {
-        itemClassName = '-active'
+        itemClassName.push('-active')
       }
 
-      if (userActions.name.indexOf(userData.userName) >= 0) {
-        removeButton = (
-          <button onClick={handleRemoveResistanceClick(val)}>
-            remove
-          </button>
-        )
+      if (val.destroyed) {
+        itemClassName.push('-destroyed')
       }
+
+      if (userActions.amount >= val.amount) {
+        itemClassName.push('-cant-add')
+      }
+
+      let printRemoveButton = userActions.name.indexOf(userData.userName) >= 0 && !gameState.readyForNextRound
 
 
     return (
-      <li key={val.resistanceID} className={itemClassName} onClick={handleResistanceClick(val)}>
+      <li key={val.resistanceID} className={itemClassName.join(' ')} onClick={val.destroyed ? null : handleResistanceClick(val, userActions.amount)}>
         <img alt={val.label} src={val.url} />
         <strong>{val.amount}</strong><br />
         <em>{userActions.amount}</em> <br />
-        {removeButton}
+        {printRemoveButton &&
+        <button onClick={handleRemoveResistanceClick(val)}>
+          remove
+        </button>
+        }
         <p>{userActions.name.join(', ')}</p>
       </li>
     )
   })
 
+  let enemyClassName = ['enemy-card']
+
+  if (data.destroyed) {
+    enemyClassName.push('-destroyed')
+  }
   return (
-    <div className="enemy-card">
+    <div className={enemyClassName.join(' ')}>
       <p className="name">
         {data.label}
       </p>
