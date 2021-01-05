@@ -1,4 +1,4 @@
-const {compose, noop} = require('./utils')
+const {compose, noop, idx} = require('./utils')
 const {createUser, addUserToList, removeUserFromList, userActivityBy, readyBy} = require('./user')
 const {joinBy} = require('./room')
 const server = require('http').createServer()
@@ -90,6 +90,34 @@ io.on('connection', socket => {
       io.to(roomID).emit('user-activity', userActivity({
         type: 'user',
         message: 'disconnected'
+      }))
+    })
+  })
+
+  .then(() => {
+    let {roomID} = room()
+    socket.on('update-round-data', (roundData) => {
+
+      let isEqual = Object.keys(roundData).reduce((acc, val) => {
+        let resistanceList = idx(['roundData', val, 'resistanceID'], room().gameData, [])
+        let newResistanceList = idx([val, 'resistanceID'], roundData, [])
+        if (resistanceList.length !== newResistanceList.length) {
+          return 1
+        }
+        return acc + newResistanceList.filter((v, i) => resistanceList[i] !== v).length === 0 ? 0 : 1
+      }, 0) === 0
+
+      if (isEqual) {
+        return
+      }
+
+      let {gameData} = room()
+      room({...gameData, roundData: {...gameData.roundData, ...roundData}}, 'gameData')
+
+      io.to(roomID).emit('user-activity', userActivity({
+        type: 'game',
+        message: 'round data',
+        data: roundData
       }))
     })
   })

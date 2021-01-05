@@ -4,14 +4,14 @@ import gameContext, {getIconAssetBy} from '../../context/GameContext'
 import EnemyCard from './EnemyCard'
 
 const EnemyDeck = () => {
-  let {gameData} = useContext(gameContext)
+  let {gameState} = useContext(gameContext)
 
-  if (gameData.enemyList.length === 0) {
+  if (gameState.enemyList.length === 0) {
     return null
   }
 
-  const getIconAsset = getIconAssetBy(gameData.iconList)
-  let cardList = gameData.enemyList.map((val, i) => {
+  const getIconAsset = getIconAssetBy(gameState.iconList)
+  let cardList = gameState.enemyList.map((val, i) => {
     val.resistance = val.resistance.map(res => ({...res, ...getIconAsset(res.label)}))
     val.rounds = {...val.rounds, ...getIconAsset(val.rounds.icon)}
 

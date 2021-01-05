@@ -51,7 +51,7 @@ room({
     {userID: '3', userName: 'test3'}
   ],
   readyList: ['test'],
-  gameData: {}
+  gameData: {roundData:{}}
 })
 
 test('user is ready to start the game / for next round', () => {

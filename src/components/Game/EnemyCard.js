@@ -1,37 +1,74 @@
 import {useContext} from 'react'
+import {idxl, clone} from '../../utils'
 import './EnemyCard.css'
 import GameContext from '../../context/GameContext'
 
 const EnemyCard = ({data}) => {
-  let {userData, gameData, setGameData} = useContext(GameContext)
+  let {userData, gameState, gameDispatcher} = useContext(GameContext)
 
   const handleResistanceClick = ({resistanceID, label}) => e => {
-    const [character] = gameData.characterList.filter((character) => character.name === userData.userName)
-    if (character.skill.indexOf(label) < 0) {
-      return
-    }
-    setGameData(prev => {
-      let newGameData = {...prev}
-      if (!newGameData.roundData[userData.userName]) {
-        newGameData.roundData[userData.userName] = {resistanceID: []}
+    gameDispatcher({
+      type: 'ASSIGN',
+      payload: {
+        userName: userData.userName,
+        label,
+        resistanceID
       }
-      if (newGameData.roundData[userData.userName].resistanceID.length < character.canDestroy) {
-        newGameData.roundData[userData.userName].resistanceID.push(resistanceID)
+    })
+  }
+
+  const handleRemoveResistanceClick = ({resistanceID}) => e => {
+    e.stopPropagation()
+    gameDispatcher({
+      type: 'UNASSIGN',
+      payload: {
+        userName: userData.userName,
+        resistanceID
       }
-      return newGameData
     })
   }
 
   let resistanceList = data.resistance.map(val => {
     let itemClassName = ''
-    let roundData = gameData.roundData[userData.userName]
-    if (roundData && roundData.resistanceID.indexOf(val.resistanceID) >= 0) {
-      itemClassName = '-active'
-    }
+    let removeButton = ''
+    let userActions = Object.keys(gameState.roundData)
+      .map(key => {
+        let amountSelected = gameState.roundData[key].resistanceID
+          .filter((resistanceID) => val.resistanceID === resistanceID).length
+
+        return {
+          amount: amountSelected,
+          name: key
+        }
+      })
+      .filter(obj => obj.amount > 0)
+      .reduce((acc, val) => {
+        return {
+          amount: acc.amount + val.amount,
+          name: acc.name.concat(val.name)
+        }
+      }, {amount: 0, name: []})
+
+      if (userActions.amount > 0) {
+        itemClassName = '-active'
+      }
+
+      if (userActions.name.indexOf(userData.userName) >= 0) {
+        removeButton = (
+          <button onClick={handleRemoveResistanceClick(val)}>
+            remove
+          </button>
+        )
+      }
+
+
     return (
       <li key={val.resistanceID} className={itemClassName} onClick={handleResistanceClick(val)}>
         <img alt={val.label} src={val.url} />
-        <strong>{val.amount}</strong>
+        <strong>{val.amount}</strong><br />
+        <em>{userActions.amount}</em> <br />
+        {removeButton}
+        <p>{userActions.name.join(', ')}</p>
       </li>
     )
   })

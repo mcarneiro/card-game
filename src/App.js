@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useReducer } from 'react'
 import socket from './business/socket'
 import Board from './components/Game/Board'
 import Chat from './components/Chat/Chat'
 import Register from './components/Register'
 import GameContext from './context/GameContext'
+import gameReducer from './reducers/gameReducer'
 import './App.css'
 
 const connection = socket('ws://localhost:3001')
 
 const App = () => {
-  let [gameData, setGameData] = useState({
+  let [gameState, gameDispatcher] = useReducer(gameReducer, {
     round: 0,
     characterList: [],
     enemyList: [],
@@ -28,11 +29,10 @@ const App = () => {
       connection.handleUserListUpdate(setUserList),
 
       connection.handleHistory((data) => {
-        const activity = data.filter(val => val.type === 'game')
-        const rounds = activity.length
-        if (activity.length > 0) {
-          setGameData(prev => ({...prev, ...activity.pop().data, round: rounds}))
-        }
+        gameDispatcher({
+          type: 'FROM_HISTORY',
+          payload: data
+        })
       }),
 
       connection.handleConnection((type) => {
@@ -41,10 +41,10 @@ const App = () => {
     ]
 
     return () => clear.map(fn => fn())
-  }, [setUserList, setGameData, setUserData])
+  }, [setUserList, setUserData])
 
   return (
-    <GameContext.Provider value={{userList, userData, setUserData, gameData, setGameData}}>
+    <GameContext.Provider value={{userList, userData, setUserData, gameState, gameDispatcher}}>
       { !userData.isOnline ? 'Disconnected!' : '' }
       { !userData.userName ?
         <Register join={connection.join} />

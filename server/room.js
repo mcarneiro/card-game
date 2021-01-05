@@ -21,7 +21,7 @@ const roomBy = roomID => {
         roomID,
         userList: [],
         readyList: [],
-        gameData: {}
+        gameData: {roundData:{}}
       }
     }
 

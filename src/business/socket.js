@@ -179,19 +179,34 @@ const socket = (url) => {
     return () => socket.off('user-activity', evt)
   }
 
+  const updateRoundData = (data) => {
+    socket.emit('update-round-data', data)
+  }
+
   const sendReadyForNextRound = (data) => {
     socket.emit('ready-for-next-round', data)
   }
 
   const handleNewRound = (callback) => {
     const onNewRound = (data) => {
-      if (data.type === 'game') {
+      if (data.type === 'game' && data.message === 'new round') {
         callback(data)
       }
     }
     socket.on('user-activity', onNewRound)
 
     return () => socket.off('new-round', onNewRound)
+  }
+
+  const handleRoundDataUpdate = (callback) => {
+    const roundDataUpdate = (data) => {
+      if (data.type === 'game' && data.message === 'round data') {
+        callback(data)
+      }
+    }
+    socket.on('user-activity', roundDataUpdate)
+
+    return () => socket.off('user-activity', roundDataUpdate)
   }
 
   return {
@@ -201,6 +216,8 @@ const socket = (url) => {
     handleHistory,
     handleUserActivity,
     sendMessage,
+    updateRoundData,
+    handleRoundDataUpdate,
     sendReadyForNextRound,
     handleNewRound,
     askCurrentState,

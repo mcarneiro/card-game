@@ -57,7 +57,8 @@ const gameSetupBy = data => (userList) => {
     enemyList: newEnemyList,
     eventList: newEventList,
     iconList,
-    roundData: {}
+    roundData: {},
+    round: 1
   }
 }
 const gameSetup = gameSetupBy(data)
@@ -100,6 +101,7 @@ const newRound = (gameData) => {
   // check time
 
   newGameData.roundData = {}
+  newGameData.round += 1
   return newGameData
 }
 

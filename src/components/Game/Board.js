@@ -3,28 +3,45 @@ import './Board.css'
 import GameContext from '../../context/GameContext'
 import CharacterDeck from './CharacterDeck'
 import EnemyDeck from './EnemyDeck'
+import {idx} from '../../utils'
 
 const Board = ({socket}) => {
   let [roundStarted, setRoundStarted] = useState(true)
-  let {gameData, setGameData, userList} = useContext(GameContext)
+  let {gameState, gameDispatcher, userData, userList} = useContext(GameContext)
 
   const handleClick = () => {
     setRoundStarted(false)
-    socket.sendReadyForNextRound(gameData.roundData)
+    socket.sendReadyForNextRound(gameState.roundData)
   }
 
   useEffect(() => {
     const clear = [
       socket.handleNewRound(res => {
         setRoundStarted(true)
-        setGameData(prev => {
-          return {...prev, ...res.data, round: prev.round + 1}
+        gameDispatcher({
+          type: 'NEW_ROUND',
+          payload: res.data
+        })
+      }),
+
+      socket.handleRoundDataUpdate(res => {
+        if (userData.userName === res.userName) {
+          return;
+        }
+
+        gameDispatcher({
+          type: 'ROUND_UPDATE',
+          payload: res.data
         })
       })
     ]
 
-    return () => clear.map(fn => fn)
-  }, [socket, setRoundStarted, setGameData])
+    return () => clear.map(fn => fn())
+  }, [socket, setRoundStarted, gameState, userData])
+
+  useEffect(() => {
+    socket.updateRoundData(gameState.roundData)
+  }, [gameState])
 
   return (
     <div className="board">
@@ -36,7 +53,7 @@ const Board = ({socket}) => {
 
       { roundStarted ?
       <button className="button-next-round" onClick={handleClick}>
-        {gameData.round > 0 ? 'Ready for the next round' : 'Start game'}
+        {gameState.round > 0 ? 'Ready for the next round' : 'Start game'}
       </button>
       :
       <div className="button-next-round">
