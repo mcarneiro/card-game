@@ -3,7 +3,8 @@ const {
   compose,
   noop,
   idx,
-  idxl
+  idxl,
+  clone
 } = require('./utils')
 
 test('compose', () => {
@@ -14,6 +15,32 @@ test('compose', () => {
 
 test('noop', () => {
   expect(noop()).toBe(undefined)
+})
+
+test('object is cloned', () => {
+  let str = 'teste'
+  let arr = [1,2,3]
+  let obj = {a:{b:{c:[1,2,3]}}}
+  let num = 1
+
+  let duplicateStr = clone(str)
+  duplicateStr = 'teste2'
+  expect(str).not.toBe(duplicateStr)
+
+  let duplicateArr = clone(arr)
+  duplicateArr.push(4)
+  expect(arr.length).not.toBe(duplicateArr.length)
+
+  let duplicateObj = clone(obj)
+
+  duplicateObj.a.b.teste = 1
+  duplicateObj.a.b.c[0] = 'a'
+  expect(obj.a.b.teste).toBeUndefined()
+  expect(obj.a.b.c[0]).toBe(1)
+
+  let duplicateNum = clone(num)
+  duplicateNum = 'teste2'
+  expect(num).not.toBe(duplicateNum)
 })
 
 test('generate IDs that are not equal', () => {

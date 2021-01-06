@@ -1,5 +1,5 @@
 const data = require('./data/core')
-const { generateID } = require('./utils')
+const { generateID, clone } = require('./utils')
 const shuffle = arr => arr.concat().sort((a,b) => Math.random() >= 0.5 ? 1 : -1)
 
 const getCharactersBy = list => (len) => {
@@ -32,13 +32,16 @@ const gameSetupBy = data => (userList) => {
   let applyMultiplier = applyMultiplierBy(multiplierList)
 
   let newEnemyList = shuffle(enemyList)
-    .slice(0, Math.ceil(len * 0.5))
+    .slice(0, Math.ceil(len * 0.5) + 3)
     .map((val) => ({
         ...val,
         enemyID: generateID(),
         resistance: val.resistance.map(applyMultiplier).map(val => ({...val, resistanceID: generateID()})),
         rounds: {...val.rounds, roundsID: generateID()},
-        destroyed: false
+        destroyed: false,
+        characterList: [],
+        blocked: false,
+        blockedRounds: 0
     }))
 
   let newCharacterList = getCharacters(len)
@@ -57,25 +60,42 @@ const gameSetupBy = data => (userList) => {
     characterList: newCharacterList,
     enemyList: newEnemyList,
     eventList: newEventList,
+    event: false,
     iconList,
     roundData: {},
     timeBonus: 0,
-    status: {
-      label: 'active',
-      message: 'game is running'
-    },
+    status: 'active',
+    statusMessage: 'game running',
+    hasToken: true,
+    useToken: false,
     round: 1
   }
 }
 const gameSetup = gameSetupBy(data)
 
 const newRound = (gameData) => {
+
+  if (gameData.event) {
+    if (gameData.event.cancelable && gameData.useToken && gameData.hasToken) {
+      let newGameData = clone(gameData)
+      newGameData.hasToken = false
+      newGameData.useToken = false
+      newGameData.event = null
+      return newGameData
+    }
+
+    if (!gameData.event.cancelable || !gameData.hasToken) {
+      gameData.event = null
+    }
+
+    // apply changes
+  }
+
   let newGameData = Object.keys(gameData.roundData)
     .reduce((gameData, label) => {
-      let newGameData = JSON.parse(JSON.stringify(gameData))
       let roundData = gameData.roundData[label]
 
-      newGameData.enemyList = gameData.enemyList.map(enemy => {
+      gameData.enemyList = gameData.enemyList.map(enemy => {
         let resistance = enemy.resistance.map(resistance => {
           let toKill = roundData.resistanceID.join('').split(resistance.resistanceID).slice(1).length
           let amount = Math.max(resistance.amount - toKill, 0)
@@ -83,11 +103,15 @@ const newRound = (gameData) => {
           return {
             ...resistance,
             amount,
-            destroyed: amount <= 0
+            destroyed: amount === 0
           }
         })
 
         let destroyed = resistance.filter(resistance => !resistance.destroyed).length === 0
+
+        if (roundData.enemyID.indexOf(enemy.enemyID) >= 0 && enemy.characterList.indexOf(label) < 0) {
+          enemy.characterList.push(label)
+        }
 
         return {
           ...enemy,
@@ -96,8 +120,8 @@ const newRound = (gameData) => {
         }
       })
 
-      return newGameData
-    }, gameData)
+      return gameData
+    }, clone(gameData))
 
   newGameData.enemyList = newGameData.enemyList.map(enemy => {
     return {
@@ -113,20 +137,22 @@ const newRound = (gameData) => {
   let allEnemiesDestroyed = newGameData.enemyList.map(enemy => enemy.destroyed).indexOf(false) < 0
 
   if (timeIsUp) {
-    newGameData.status.label = 'end'
-    newGameData.status.message = 'time is up'
+    newGameData.status = 'end'
+    newGameData.statusMessage = 'time is up'
   }
 
   if (allEnemiesDestroyed) {
-    newGameData.status.label = 'end'
-    newGameData.status.message = 'win'
+    newGameData.status = 'end'
+    newGameData.statusMessage = 'win'
   }
 
   newGameData.timeBonus = newGameData.enemyList.reduce((acc, curr) => acc + (curr.destroyed ? curr.rounds.amount : 0), 0)
 
-  // shuffle event
+  newGameData.event = newGameData.eventList.pop()
 
-  // check time
+  if (!newGameData.event.cancelable || !newGameData.hasToken) {
+    // apply changes
+  }
 
   newGameData.roundData = {}
   newGameData.round += 1

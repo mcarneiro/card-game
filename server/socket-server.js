@@ -98,13 +98,25 @@ io.on('connection', socket => {
     let {roomID} = room()
     socket.on('update-round-data', (roundData) => {
 
+      // TODO: REFACTORY
       let isEqual = Object.keys(roundData).reduce((acc, val) => {
         let resistanceList = idx(['roundData', val, 'resistanceID'], room().gameData, [])
         let newResistanceList = idx([val, 'resistanceID'], roundData, [])
+        let enemyList = idx(['roundData', val, 'enemyID'], room().gameData, [])
+        let newEnemyList = idx([val, 'enemyID'], roundData, [])
+
         if (resistanceList.length !== newResistanceList.length) {
           return 1
         }
-        return acc + newResistanceList.filter((v, i) => resistanceList[i] !== v).length === 0 ? 0 : 1
+
+        if (enemyList.length !== newEnemyList.length) {
+          return 1
+        }
+
+        let resistanceHasChanged = newResistanceList.filter((v, i) => resistanceList[i] !== v).length === 0
+        let enemyHasChanged = newEnemyList.filter((v, i) => enemyList[i] !== v).length === 0
+
+        return acc + (resistanceHasChanged ? 0 : 1) + (enemyHasChanged ? 0 : 1)
       }, 0) === 0
 
       if (isEqual) {

@@ -1,10 +1,10 @@
 import {useContext} from 'react'
-import {idxl, clone} from '../../utils'
 import './EnemyCard.css'
 import GameContext from '../../context/GameContext'
 
 const EnemyCard = ({data}) => {
   let {userData, gameState, gameDispatcher} = useContext(GameContext)
+  const [character] = gameState.characterList.filter((character) => character.name === userData.userName)
 
   const handleResistanceClick = (resistance, amountSelected) => e => {
     gameDispatcher({
@@ -12,7 +12,8 @@ const EnemyCard = ({data}) => {
       payload: {
         userName: userData.userName,
         ...resistance,
-        amountSelected
+        amountSelected,
+        enemyID: data.enemyID
       }
     })
   }
@@ -23,13 +24,35 @@ const EnemyCard = ({data}) => {
       type: 'UNASSIGN',
       payload: {
         userName: userData.userName,
-        resistanceID
+        resistanceID,
+        enemyID: data.enemyID
       }
     })
   }
 
+  const handleRemoveEnemyClick = e => {
+    e.stopPropagation()
+    gameDispatcher({
+      type: 'UNASSIGN',
+      payload: {
+        userName: userData.userName,
+        enemyID: data.enemyID
+      }
+    })
+  }
+
+
+  let blockedUsers = Object.keys(gameState.roundData)
+    .filter(name => {
+        let selectedResistance = data.resistance.filter(({resistanceID}) => gameState.roundData[name].resistanceID.indexOf(resistanceID) >= 0).length > 0
+        let selectedEnemy = gameState.roundData[name].enemyID.indexOf(data.enemyID) >= 0
+
+        return selectedEnemy && !selectedResistance
+    })
+
   let resistanceList = data.resistance.map(val => {
     let itemClassName = []
+
     let userActions = Object.keys(gameState.roundData)
       .map(name => {
         let amountSelected = gameState.roundData[name].resistanceID
@@ -56,7 +79,7 @@ const EnemyCard = ({data}) => {
         itemClassName.push('-destroyed')
       }
 
-      if (userActions.amount >= val.amount) {
+      if (userActions.amount >= val.amount || character.skill.indexOf(val.label) < 0) {
         itemClassName.push('-cant-add')
       }
 
@@ -64,12 +87,12 @@ const EnemyCard = ({data}) => {
 
 
     return (
-      <li key={val.resistanceID} className={itemClassName.join(' ')} onClick={val.destroyed ? null : handleResistanceClick(val, userActions.amount)}>
+      <li key={val.resistanceID} className={itemClassName.join(' ')} onClick={val.destroyed || gameState.status === 'end' ? null : handleResistanceClick(val, userActions.amount)}>
         <img alt={val.label} src={val.url} />
         <strong>{val.amount}</strong><br />
         <em>{userActions.amount}</em> <br />
         {printRemoveButton &&
-        <button onClick={handleRemoveResistanceClick(val)}>
+        <button onClick={gameState.status === 'end' ? null : handleRemoveResistanceClick(val)}>
           remove
         </button>
         }
@@ -83,6 +106,15 @@ const EnemyCard = ({data}) => {
   if (data.destroyed) {
     enemyClassName.push('-destroyed')
   }
+
+  if (blockedUsers.indexOf(userData.userName) >= 0) {
+    enemyClassName.push('-blocked')
+  }
+
+  if (data.characterList.indexOf(userData.userName) < 0) {
+    enemyClassName.push('-needs-knowledge')
+  }
+
   return (
     <div className={enemyClassName.join(' ')}>
       <p className="name">
@@ -98,6 +130,16 @@ const EnemyCard = ({data}) => {
           <strong>{data.rounds.amount}</strong>
         </li>
       </ul>
+      {blockedUsers.length > 0 &&
+      <p>
+        Waiting list: {blockedUsers.join(', ')}
+        {gameState.status !== 'end' && blockedUsers.indexOf(userData.userName) >= 0 &&
+        <button onClick={handleRemoveEnemyClick}>
+          remove
+        </button>
+        }
+      </p>
+      }
     </div>
   )
 }

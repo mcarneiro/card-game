@@ -5,10 +5,14 @@ const gameInitialState = {
   characterList: [],
   enemyList: [],
   eventList: [],
+  event: false,
   iconList: [],
   roundData: {},
-  status: {},
+  status: '',
+  statusMessage: '',
   timeBonus: 0,
+  useToken: false,
+  hasToken: false,
   ui: {
     readyForNextRound: false
   }
@@ -47,50 +51,56 @@ const gameReducer = (state, {type, payload}) => {
       }
 
     case 'ROUND_UPDATE':
-      let isEqual = Object.keys(payload).reduce((acc, val) => {
-        let localResistanceList = idx(['roundData', val, 'resistanceID'], state, [])
-        let remoteResistanceList = idx([val, 'resistanceID'], payload, [])
-        if (localResistanceList.length !== remoteResistanceList.length) {
-          return 1
-        }
-        return acc + remoteResistanceList.filter((v, i) => localResistanceList[i] !== v).length === 0 ? 0 : 1
-      }, 0) === 0
-
-      if (!isEqual) {
-        let clonedState = clone(state)
-        return {
-          ...clonedState,
-          roundData: {
-            ...clonedState.roundData,
-            ...payload
-          }
+      let clonedState = clone(state)
+      return {
+        ...clonedState,
+        roundData: {
+          ...clonedState.roundData,
+          ...payload
         }
       }
-      return state
 
     case 'ASSIGN':
       const [character] = state.characterList.filter((character) => character.name === payload.userName)
       if (character.skill.indexOf(payload.label) < 0 || payload.amountSelected >= payload.amount) {
         return state
       }
+
       newGameData = clone(state)
-      if (!newGameData.roundData[payload.userName]) {
-        newGameData.roundData[payload.userName] = {resistanceID: []}
+      let userRoundData = newGameData.roundData[payload.userName]
+      if (!userRoundData) {
+        userRoundData = {resistanceID: [], enemyID: []}
       }
-      if (newGameData.roundData[payload.userName].resistanceID.length < character.canDestroy) {
-        newGameData.roundData[payload.userName].resistanceID.push(payload.resistanceID)
+
+      const hasKnowledge = state.enemyList.filter(enemy => enemy.enemyID === payload.enemyID && enemy.characterList.indexOf(character.name) >= 0).length > 0
+
+      if (userRoundData.enemyID.length < character.canDestroy && userRoundData.enemyID.indexOf(payload.enemyID) < 0) {
+        userRoundData.enemyID.push(payload.enemyID)
       }
+
+      if ((hasKnowledge || state.round === 1) && userRoundData.resistanceID.length < character.canDestroy) {
+        userRoundData.resistanceID.push(payload.resistanceID)
+      }
+
+      newGameData.roundData[payload.userName] = userRoundData
+
       return newGameData
 
     case 'UNASSIGN':
       newGameData = clone(state)
 
       let roundData = newGameData.roundData[payload.userName]
-      let indexOf = roundData.resistanceID.indexOf(payload.resistanceID)
+      let resistanceIndexOf = roundData.resistanceID.indexOf(payload.resistanceID)
+      let enemyIndexOf = roundData.enemyID.indexOf(payload.enemyID)
 
-      if (indexOf >= 0) {
-        roundData.resistanceID.splice(indexOf, 1)
+      if (resistanceIndexOf >= 0) {
+        roundData.resistanceID.splice(resistanceIndexOf, 1)
       }
+
+      if (enemyIndexOf >= 0) {
+        roundData.enemyID.splice(enemyIndexOf, 1)
+      }
+
       return newGameData
     default:
       return state

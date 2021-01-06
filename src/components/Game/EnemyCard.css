@@ -12,6 +12,13 @@
 .enemy-card.-destroyed {
   background: #ff7474
 }
+.enemy-card.-blocked {
+  background: #aaaaaa
+}
+
+.enemy-card.-needs-knowledge {
+  background: #dddddd
+}
 
 .enemy-card > .name {
   margin: 0;
@@ -47,11 +54,11 @@
 }
 
 .resistance > li.-cant-add {
-  border: 1px solid green;
+  opacity: 0.5
 }
 
 .resistance > li.-destroyed {
-  opacity: 0.25;
+  opacity: 0.1;
 }
 
 .resistance > li > img {

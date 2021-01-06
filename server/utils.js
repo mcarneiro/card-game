@@ -15,10 +15,13 @@ const idx = (arr = [], obj, fallback = null) => (arr.reduce((acc, val) => {
 
 const idxl = (str, ...args) => idx(str.split('.'), ...args)
 
+const clone = (obj) => JSON.parse(JSON.stringify(obj))
+
 module.exports = {
   compose,
   noop,
   generateID,
   idx,
-  idxl
+  idxl,
+  clone
 }

@@ -51,7 +51,7 @@ room({
     {userID: '3', userName: 'test3'}
   ],
   readyList: ['test'],
-  gameData: {roundData:{}}
+  gameData: {roundData:{}, round: 0}
 })
 
 test('user is ready to start the game / for next round', () => {
@@ -67,14 +67,13 @@ test('user is ready to start the game / for next round', () => {
   expect(ret.ready).toBe(true)
 })
 
-
 test('round data gets merged and cleaned after ready', () => {
-  readyBy(room, userData1)({'test': {resistanceID: ['1']}})
-  ret = readyBy(room, userData2)({'test2': {resistanceID: ['2']}})
+  readyBy(room, userData1)({'test': {resistanceID: ['1'], enemyID: ['a']}})
+  ret = readyBy(room, userData2)({'test2': {resistanceID: ['2'], enemyID: ['a']}})
   expect(room().gameData.roundData.test.resistanceID).toStrictEqual(['1'])
   expect(room().gameData.roundData.test2.resistanceID).toStrictEqual(['2'])
 
-  ret = readyBy(room, userData3)({'test3': {resistanceID: ['3']}})
+  ret = readyBy(room, userData3)({'test3': {resistanceID: ['3'], enemyID: ['a']}})
   expect(ret.roundData.test3.resistanceID).toStrictEqual(['3'])
   expect(Object.keys(room().gameData.roundData).length).toBe(0)
   expect(ret.ready).toBe(true)

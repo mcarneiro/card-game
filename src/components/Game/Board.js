@@ -43,7 +43,6 @@ const Board = ({socket}) => {
       return
     }
 
-    console.log('update round data', gameState.roundData)
     socket.updateRoundData(gameState.roundData)
   }, [socket, gameState])
 
@@ -59,7 +58,7 @@ const Board = ({socket}) => {
       </p>
 
 
-      { gameState.ui.readyForNextRound ?
+      { gameState.status !== 'end' && (gameState.ui.readyForNextRound ?
       <div className="button-next-round">
         waiting for others...
       </div>
@@ -67,11 +66,14 @@ const Board = ({socket}) => {
       <button className="button-next-round" onClick={handleClick}>
         {gameState.round > 0 ? 'Ready for the next round' : 'Start game'}
       </button>
+      )}
+
+      {gameState.status === 'end' &&
+      <h2>Game ended: {gameState.statusMessage}</h2>
       }
 
-      {gameState.status.label === 'end' &&
-      <h2>Game ended: {gameState.status.message}</h2>
-      }
+      <p>Event: {JSON.stringify(gameState.event)}</p>
+      <p>Round: {JSON.stringify(gameState.round)}</p>
     </div>
   )
 }
