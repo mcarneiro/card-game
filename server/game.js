@@ -37,7 +37,8 @@ const gameSetupBy = data => (userList) => {
         ...val,
         enemyID: generateID(),
         resistance: val.resistance.map(applyMultiplier).map(val => ({...val, resistanceID: generateID()})),
-        rounds: {...val.rounds, roundsID: generateID()}
+        rounds: {...val.rounds, roundsID: generateID()},
+        destroyed: false
     }))
 
   let newCharacterList = getCharacters(len)
@@ -58,6 +59,11 @@ const gameSetupBy = data => (userList) => {
     eventList: newEventList,
     iconList,
     roundData: {},
+    timeBonus: 0,
+    status: {
+      label: 'active',
+      message: 'game is running'
+    },
     round: 1
   }
 }
@@ -103,9 +109,23 @@ const newRound = (gameData) => {
     }
   })
 
+  let timeIsUp = newGameData.enemyList.map(enemy => enemy.rounds.amount === 0).indexOf(true) >= 0
+  let allEnemiesDestroyed = newGameData.enemyList.map(enemy => enemy.destroyed).indexOf(false) < 0
+
+  if (timeIsUp) {
+    newGameData.status.label = 'end'
+    newGameData.status.message = 'time is up'
+  }
+
+  if (allEnemiesDestroyed) {
+    newGameData.status.label = 'end'
+    newGameData.status.message = 'win'
+  }
+
+  newGameData.timeBonus = newGameData.enemyList.reduce((acc, curr) => acc + (curr.destroyed ? curr.rounds.amount : 0), 0)
+
   // shuffle event
 
-  // check resistances x time (destroy enemy, get time bonus)
   // check time
 
   newGameData.roundData = {}

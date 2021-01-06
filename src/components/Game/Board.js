@@ -39,7 +39,7 @@ const Board = ({socket}) => {
   }, [socket, userData, gameDispatcher])
 
   useEffect(() => {
-    if (gameState.readyForNextRound) {
+    if (gameState.ui.readyForNextRound) {
       return
     }
 
@@ -54,8 +54,12 @@ const Board = ({socket}) => {
       <p>
         Online users: {userList.map(val => val.userName).join(',')}
       </p>
+      <p>
+        Time bonus: {gameState.timeBonus}
+      </p>
 
-      { gameState.readyForNextRound ?
+
+      { gameState.ui.readyForNextRound ?
       <div className="button-next-round">
         waiting for others...
       </div>
@@ -63,6 +67,10 @@ const Board = ({socket}) => {
       <button className="button-next-round" onClick={handleClick}>
         {gameState.round > 0 ? 'Ready for the next round' : 'Start game'}
       </button>
+      }
+
+      {gameState.status.label === 'end' &&
+      <h2>Game ended: {gameState.status.message}</h2>
       }
     </div>
   )

@@ -1,5 +1,19 @@
 import {clone, idx} from '../utils'
 
+const gameInitialState = {
+  round: 0,
+  characterList: [],
+  enemyList: [],
+  eventList: [],
+  iconList: [],
+  roundData: {},
+  status: {},
+  timeBonus: 0,
+  ui: {
+    readyForNextRound: false
+  }
+}
+
 const gameReducer = (state, {type, payload}) => {
   let newGameData;
   switch (type) {
@@ -18,14 +32,18 @@ const gameReducer = (state, {type, payload}) => {
     case 'READY':
       return {
         ...clone(state),
-        readyForNextRound: true
+        ui: {
+          readyForNextRound: true
+        }
       }
 
     case 'NEW_ROUND':
       return {
         ...clone(state),
         ...payload,
-        readyForNextRound: false
+        ui: {
+          readyForNextRound: false
+        }
       }
 
     case 'ROUND_UPDATE':
@@ -80,5 +98,7 @@ const gameReducer = (state, {type, payload}) => {
     // avoid block
   }
 }
+
+export {gameInitialState}
 
 export default gameReducer

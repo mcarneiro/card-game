@@ -1,19 +1,13 @@
-import React from 'react'
+import {createContext} from 'react'
+import {gameInitialState} from '../reducers/gameReducer'
 
-const GameContext = React.createContext({
+
+const GameContext = createContext({
   userData: {
     userName: '',
     isOnline: false
   },
-  gameData: {
-    round: 0,
-    characterList: [],
-    enemyList: [],
-    eventList: [],
-    iconList: [],
-    roundData: {},
-    readyForNextRound: false
-  },
+  gameState: gameInitialState,
   userList: []
 })
 

@@ -4,21 +4,13 @@ import Board from './components/Game/Board'
 import Chat from './components/Chat/Chat'
 import Register from './components/Register'
 import GameContext from './context/GameContext'
-import gameReducer from './reducers/gameReducer'
+import gameReducer, {gameInitialState} from './reducers/gameReducer'
 import './App.css'
 
 const connection = socket('ws://localhost:3001')
 
 const App = () => {
-  let [gameState, gameDispatcher] = useReducer(gameReducer, {
-    round: 0,
-    characterList: [],
-    enemyList: [],
-    eventList: [],
-    iconList: [],
-    roundData: {},
-    readyForNextRound: false
-  })
+  let [gameState, gameDispatcher] = useReducer(gameReducer, gameInitialState)
   let [userData, setUserData] = useState({
     userName: '',
     isOnline: false
