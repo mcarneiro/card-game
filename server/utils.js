@@ -31,6 +31,16 @@ const shuffle = arr => {
   return newArr
 }
 
+const circleArray = (index, arr) => {
+  let ret = arr[index]
+
+  if (++index >= arr.length) {
+    index = 0
+  }
+
+  return [index, ret]
+}
+
 module.exports = {
   compose,
   noop,
@@ -38,5 +48,6 @@ module.exports = {
   idx,
   idxl,
   clone,
-  shuffle
+  shuffle,
+  circleArray
 }

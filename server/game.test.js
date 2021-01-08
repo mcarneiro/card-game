@@ -1,5 +1,5 @@
 const deepmerge = require('deepmerge')
-const {gameSetupBy, newRound} = require('./game')
+const {gameSetupBy, newRound, circleArray} = require('./game')
 const {clone} = require('./utils')
 
 const mock = {
@@ -188,43 +188,6 @@ test('events are shuffled, applied', () => {
   round = newRound(round)
 
   expect(round.enemyList[0].resistance[0]).not.toBe(2)
-})
-
-test('when there are no more events they will restart', () => {
-  const userList = [{userName: 'a'}]
-  const setupData = deepmerge(clone(mock.core), {
-    characterList: [
-      clone(mock.character)
-    ],
-    eventList: [
-      deepmerge(mock.event, {
-        canceable: true
-      }),
-      deepmerge(mock.event, {
-        canceable: true
-      })
-    ],
-    enemyList: [
-      deepmerge(mock.enemy, {
-        rounds: {amount: 10},
-        resistance: [
-          {
-            amount: 2
-          }
-        ]
-      })
-    ],
-    multiplierList: [ 2 ]
-  })
-  const gameSetup = gameSetupBy(setupData)
-
-  let round = gameSetup(userList)
-  round = newRound(round)
-  expect(round.eventIndex).toBe(1)
-  round = newRound(round)
-  round = newRound(round)
-  expect(round.eventIndex).toBe(0)
-
 })
 
 test('new event (use token)', () => {
