@@ -17,11 +17,26 @@ const idxl = (str, ...args) => idx(str.split('.'), ...args)
 
 const clone = (obj) => JSON.parse(JSON.stringify(obj))
 
+const shuffle = arr => {
+  let len = arr.length
+  let newArr = clone(arr)
+
+  for (let i=0; i<len; i++) {
+    let j = Math.min(Math.floor(Math.random() * ((len) - (i+1))) + (i+1), len-1)
+    let oldVal = newArr[i]
+    newArr[i] = newArr[j]
+    newArr[j] = oldVal
+  }
+
+  return newArr
+}
+
 module.exports = {
   compose,
   noop,
   generateID,
   idx,
   idxl,
-  clone
+  clone,
+  shuffle
 }

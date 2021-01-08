@@ -1,18 +1,13 @@
 const data = require('./data/core')
-const { generateID, clone } = require('./utils')
-const shuffle = arr => {
-  let len = arr.length
-  let newArr = arr.concat()
+const { generateID, clone, shuffle } = require('./utils')
 
-  for (let i=0; i<len; i++) {
-    let j = Math.min(Math.floor(Math.random() * ((len) - (i+1))) + (i+1), len-1)
-    let oldVal = newArr[i]
-    newArr[i] = newArr[j]
-    newArr[j] = oldVal
-  }
-
-  return newArr
-}
+const createResistance = obj => ({
+  label: '',
+  amount: 0,
+  resistanceID: generateID(),
+  destroyed: false,
+  ...obj
+})
 
 const getCharactersBy = list => (len) => {
   let characterList = list.concat()
@@ -48,7 +43,7 @@ const gameSetupBy = data => (userList) => {
     .map((val) => ({
         ...val,
         enemyID: generateID(),
-        resistance: val.resistance.map(applyMultiplier).map(val => ({...val, resistanceID: generateID()})),
+        resistance: val.resistance.map(applyMultiplier).map(createResistance),
         rounds: {...val.rounds, roundsID: generateID()},
         destroyed: false,
         characterList: [],
@@ -203,6 +198,8 @@ const applyEvent = (effect, enemyList) => {
         let resistance = enemy.resistance.map(resistance => {
           let amount = Math.max(resistance.amount + (resistanceEffect[resistance.label] || 0), 0)
 
+          delete resistanceEffect[resistance.label]
+
           return {
             ...resistance,
             amount,
@@ -210,7 +207,22 @@ const applyEvent = (effect, enemyList) => {
           }
         })
 
-        let destroyed = enemy.resistance.filter(({destroyed}) => destroyed === false).length === 0
+        let remainingResistanceEffect = Object.keys(resistanceEffect)
+        if (remainingResistanceEffect.length > 0) {
+          let newResistances = remainingResistanceEffect.reduce((arr, key) => {
+            let amount = resistanceEffect[key]
+            if (amount > 0) {
+              return arr.concat(createResistance({
+                label: key,
+                amount
+              }))
+            }
+            return arr
+          }, [])
+          resistance = resistance.concat(newResistances)
+        }
+
+        let destroyed = resistance.filter(({destroyed}) => destroyed === false).length === 0
 
         return {
           ...enemy,
