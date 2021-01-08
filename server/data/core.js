@@ -91,9 +91,9 @@ module.exports = {
       "label": "Feriado prolongado!",
       "description": "Cliente não responde e o time não consegue continuar.",
       "icon": "worst",
+      "cancelable": true,
       "effect": {
         "type": "block",
-        "cancelable": true,
         "data": {
           "rounds": 2
         }
@@ -102,9 +102,9 @@ module.exports = {
       "label": "Incomunicável!",
       "description": "Cliente não responde e o time não consegue continuar.",
       "icon": "worst",
+      "cancelable": true,
       "effect": {
         "type": "block",
-        "cancelable": true,
         "data": {
           "rounds": 1
         }
@@ -113,9 +113,9 @@ module.exports = {
       "label": "Bloqueio!",
       "description": "Muitas informações ainda faltam e o time não consegue continuar.",
       "icon": "worst",
+      "cancelable": true,
       "effect": {
         "type": "block",
-        "cancelable": true,
         "data": {
           "rounds": 1
         }
@@ -124,9 +124,9 @@ module.exports = {
       "label": "Atropelado!",
       "description": "Uma demanda chegou rasgando! Utilize essa carta como projeto.<br/><i>(Token não tem efeito).</i>",
       "icon": "worst",
+      "cancelable": false,
       "effect": {
         "type": "enemy",
-        "cancelable": false,
         "data": {
           "resistance": [
             {
@@ -144,9 +144,9 @@ module.exports = {
       "label": "Pastelaria!",
       "description": "Apareceu uma demanda urgente! Utilize essa carta como projeto.<br/><i>(Token não tem efeito).</i>",
       "icon": "worst",
+      "cancelable": false,
       "effect": {
         "type": "enemy",
-        "cancelable": false,
         "data": {
           "resistance": [
             {
@@ -164,20 +164,20 @@ module.exports = {
       "label": "Feriado!",
       "description": "Ninguém percebeu que tinha um feriado no meio.",
       "icon": "worst",
+      "cancelable": false,
       "effect": {
-        "type": "rounds",
-        "cancelable": true,
+        "type": "block",
         "data": {
-          "rounds": -1
+          "rounds": 1
         }
       }
     }, {
       "label": "Telefone sem fio!",
       "description": "O trabalho precisará ser refeito por problema de entendimento.",
       "icon": "very-bad",
+      "cancelable": true,
       "effect": {
         "type": "resistance",
-        "cancelable": true,
         "data": {
           "resistance": [
             {
@@ -191,9 +191,9 @@ module.exports = {
       "label": "Subiu no telhado!",
       "description": "Aquela mecânica complicada caiu.",
       "icon": "good",
+      "cancelable": false,
       "effect": {
         "type": "resistance",
-        "cancelable": false,
         "data": {
           "resistance": [
             {
@@ -213,9 +213,9 @@ module.exports = {
       "label": "Consciência!",
       "description": "Cliente foi convencido de derrubar módulo irrelevante.",
       "icon": "good",
+      "cancelable": false,
       "effect": {
         "type": "resistance",
-        "cancelable": false,
         "data": {
           "resistance": [
             {
@@ -229,9 +229,9 @@ module.exports = {
       "label": "O time entregou o dobro do esperado!",
       "description": "Aquela mecânica complicada caiu.",
       "icon": "good",
+      "cancelable": false,
       "effect": {
         "type": "resistance",
-        "cancelable": false,
         "data": {
           "multiplier": 2
         }
